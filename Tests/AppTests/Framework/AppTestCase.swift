@@ -9,6 +9,10 @@ class AppTestCase: XCTestCase {
         let password: String
     }
     
+    func bearerHeader(_ token: String) -> (String, String) {
+        ("Authorization", "Bearer \(token)")
+    }
+    
     func createTestApp() throws -> Application {
         let app = Application(.testing)
         
@@ -25,7 +29,7 @@ class AppTestCase: XCTestCase {
         _ app: Application
     ) throws -> User.Token.Detail {
         var token: User.Token.Detail?
-        try app.test(.POST, "/api/sign-in/", beforeRequest: { req in
+        try app.test(.POST, "/api/user/sign-in/", beforeRequest: { req in
             try req.content.encode(user)
         }, afterResponse: { res in
             XCTAssertContent(User.Token.Detail.self, res) { content in

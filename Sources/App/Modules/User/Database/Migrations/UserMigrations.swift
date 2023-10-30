@@ -19,7 +19,8 @@ enum UserMigrations {
                 .field(UserTokenModel.FieldKeys.v1.userId, .uuid, .required)
                 .foreignKey(
                     UserTokenModel.FieldKeys.v1.userId,
-                    references: UserAccountModel.schema, .id
+                    references: UserAccountModel.schema, .id,
+                    onDelete: .cascade
                 )
                 .unique(on: UserTokenModel.FieldKeys.v1.value)
                 .create()

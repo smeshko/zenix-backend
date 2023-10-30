@@ -1,5 +1,6 @@
 import Entities
 import Vapor
+import Fluent
 
 extension User.Token.Detail: Content {}
 
@@ -47,6 +48,32 @@ struct UserApiController {
             value: token.value,
             user: account
         )
+    }
+    
+    func logout(_ req: Request) async throws -> HTTPStatus {
+        guard let user = req.auth.get(AuthenticatedUser.self) else {
+            throw Abort(.unauthorized)
+        }
+        
+        let token = try await UserTokenModel.query(on: req.db)
+            .filter(\.$user.$id == user.id)
+            .first()
+
+        try await token?.delete(on: req.db)
+
+        return .ok
+    }
+    
+    func delete(_ req: Request) async throws -> HTTPStatus {
+        guard let user = req.auth.get(AuthenticatedUser.self) else {
+            throw Abort(.unauthorized)
+        }
+    
+        try await UserAccountModel
+            .find(user.id, on: req.db)?
+            .delete(on: req.db)
+        
+        return .ok
     }
 }
 

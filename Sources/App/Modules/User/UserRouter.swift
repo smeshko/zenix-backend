@@ -13,7 +13,14 @@ struct UserRouter: RouteCollection {
             .grouped(UserCredentialsAuthenticator())
             .post("sign-in", use: apiController.signIn)
         
+        api.post("sign-up", use: apiController.signUp)
+        
         api
-            .post("sign-up", use: apiController.signUp)
+            .grouped(UserTokenAuthenticator())
+            .post("logout", use: apiController.logout)
+        
+        api
+            .grouped(UserTokenAuthenticator())
+            .delete("delete", use: apiController.delete)
     }
 }

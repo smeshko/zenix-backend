@@ -54,4 +54,38 @@ final class UserControllerTests: AppTestCase {
             XCTAssertEqual(response.status, .badRequest)
         }
     }
+    
+    func testLogout_ShouldDeleteToken() async throws {
+        let app = try createTestApp()
+        defer { app.shutdown() }
+        
+        let token = try authenticateRoot(app)
+        
+        try app.testable(method: .inMemory)
+            .test(
+                .POST, "/api/user/logout",
+                headers: HTTPHeaders([bearerHeader(token.value)])
+            ) { response in
+                let tokens = try UserTokenModel.query(on: app.db).all().wait()
+                XCTAssertEqual(response.status, .ok)
+                XCTAssertEqual(tokens.count, 0)
+            }
+    }
+    
+    func testDelete_ShouldDeleteUser() async throws {
+        let app = try createTestApp()
+        defer { app.shutdown() }
+        
+        let token = try authenticateRoot(app)
+        
+        try app.testable(method: .inMemory)
+            .test(
+                .DELETE, "/api/user/delete",
+                headers: HTTPHeaders([bearerHeader(token.value)])
+            ) { response in
+                let users = try UserAccountModel.query(on: app.db).all().wait()
+                XCTAssertEqual(response.status, .ok)
+                XCTAssertEqual(users.count, 0)
+            }
+    }
 }
