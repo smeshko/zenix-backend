@@ -1,17 +1,31 @@
-import NIOSSL
+import Vapor
 import Fluent
 import FluentSQLiteDriver
-import Vapor
 
-// configures your application
-public func configure(_ app: Application) async throws {
-    // uncomment to serve files from /Public folder
-    // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+public func configure(
+    _ app: Application
+) throws {
 
-    app.databases.use(DatabaseConfigurationFactory.sqlite(.file("db.sqlite")), as: .sqlite)
-
-    app.migrations.add(CreateTodo())
-
-    // register routes
-    try routes(app)
+    app.routes.defaultMaxBodySize = "10mb"
+    
+    switch app.environment {
+    case .development, .testing:
+        app.databases.use(.sqlite(.memory), as: .sqlite)
+    default:
+        app.databases.use(.sqlite(.file("db.sqlite")), as: .sqlite)
+    }
+    
+    let modules: [ModuleInterface] = [
+        UserModule()
+    ]
+    
+    for module in modules {
+        try module.boot(app)
+    }
+    
+    for module in modules {
+        try module.setUp(app)
+    }
+    
+    try app.autoMigrate().wait()
 }
