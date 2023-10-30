@@ -6,6 +6,10 @@ let package = Package(
     platforms: [
        .macOS(.v13)
     ],
+    products: [
+        .library(name: "Common", targets: ["Common"]),
+        .library(name: "Entities", targets: ["Entities"])
+    ],
     dependencies: [
         // 💧 A server-side Swift web framework.
         .package(url: "https://github.com/vapor/vapor.git", from: "4.83.1"),
@@ -15,9 +19,12 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.0.0"),
     ],
     targets: [
+        .target(name: "Common"),
+        .target(name: "Entities"),
         .executableTarget(
             name: "App",
             dependencies: [
+                "Common", "Entities",
                 .product(name: "Fluent", package: "fluent"),
                 .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
                 .product(name: "Vapor", package: "vapor"),

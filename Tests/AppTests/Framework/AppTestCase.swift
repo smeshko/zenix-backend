@@ -1,4 +1,5 @@
 @testable import App
+import Entities
 import XCTVapor
 
 class AppTestCase: XCTestCase {

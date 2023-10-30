@@ -1,3 +1,4 @@
+import Entities
 import Vapor
 
 extension User.Token.Detail: Content {}

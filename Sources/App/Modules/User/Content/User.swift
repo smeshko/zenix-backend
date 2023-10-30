@@ -1,10 +1,11 @@
-public enum User: ApiModuleInterface {
-    
-    public enum Account: ApiModelInterface {
-        public typealias Module = User
-    }
-    
-    public enum Token: ApiModelInterface {
-        public typealias Module = User
-    }
+import Entities
+
+extension User: ApiModuleInterface {}
+
+extension User.Account: ApiModelInterface {
+    public typealias Module = User
+}
+
+extension User.Token: ApiModelInterface {
+    public typealias Module = User
 }

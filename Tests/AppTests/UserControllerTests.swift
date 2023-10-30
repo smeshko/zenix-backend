@@ -1,3 +1,4 @@
+import Entities
 @testable import App
 import XCTVapor
 
