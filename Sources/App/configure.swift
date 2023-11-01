@@ -2,9 +2,7 @@ import Vapor
 import Fluent
 import FluentSQLiteDriver
 
-public func configure(
-    _ app: Application
-) throws {
+public func configure(_ app: Application) throws {
 
     app.routes.defaultMaxBodySize = "10mb"
     

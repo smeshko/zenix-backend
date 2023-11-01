@@ -8,7 +8,8 @@ let package = Package(
     ],
     products: [
         .library(name: "Common", targets: ["Common"]),
-        .library(name: "Entities", targets: ["Entities"])
+        .library(name: "Entities", targets: ["Entities"]),
+        .library(name: "AmeritradeService", targets: ["AmeritradeService"]),
     ],
     dependencies: [
         // 💧 A server-side Swift web framework.
@@ -21,6 +22,7 @@ let package = Package(
     targets: [
         .target(name: "Common"),
         .target(name: "Entities"),
+        .target(name: "AmeritradeService", dependencies: ["Common", "Entities"]),
         .executableTarget(
             name: "App",
             dependencies: [
