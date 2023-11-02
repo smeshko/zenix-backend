@@ -2,7 +2,7 @@ import Vapor
 
 struct UserRouter: RouteCollection {
     
-    let apiController = UserApiController()
+    let userController = UserController()
     
     func boot(routes: RoutesBuilder) throws {
         let api = routes
@@ -11,16 +11,16 @@ struct UserRouter: RouteCollection {
         
         api
             .grouped(UserCredentialsAuthenticator())
-            .post("sign-in", use: apiController.signIn)
+            .post("sign-in", use: userController.signIn)
         
-        api.post("sign-up", use: apiController.signUp)
-        
-        api
-            .grouped(UserTokenAuthenticator())
-            .post("logout", use: apiController.logout)
+        api.post("sign-up", use: userController.signUp)
         
         api
             .grouped(UserTokenAuthenticator())
-            .delete("delete", use: apiController.delete)
+            .post("logout", use: userController.logout)
+        
+        api
+            .grouped(UserTokenAuthenticator())
+            .delete("delete", use: userController.delete)
     }
 }

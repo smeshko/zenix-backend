@@ -1,10 +1,11 @@
+import Framework
 import Entities
 import Vapor
 import Fluent
 
 extension User.Token.Detail: Content {}
 
-struct UserApiController {
+struct UserController {
     
     func signIn(_ req: Request) async throws -> User.Token.Detail {
         guard let user = req.auth.get(AuthenticatedUser.self) else {

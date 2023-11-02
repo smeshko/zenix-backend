@@ -1,11 +1,11 @@
 import Foundation
 
-/// A helper builder to construct the full api endpoint given a type of request.
-public class UrlBuilder {
-    private var endpoint: EndpointProtocol
+/// A helper builder to construct the full URL of a given `Endpoint`.
+public class URLBuilder {
+    private var endpoint: Endpoint
     private var urlComponents = URLComponents()
 
-    public init(endpoint: EndpointProtocol) {
+    public init(endpoint: Endpoint) {
         self.endpoint = endpoint
     }
 
@@ -20,7 +20,7 @@ public class UrlBuilder {
 
     public func queryItems() -> Self {
         urlComponents.queryItems = endpoint.queryParameters?
-            .map { URLQueryItem(name: $0.key, value: $0.value) }
+            .map(URLQueryItem.init(name:value:))
         return self
     }
 

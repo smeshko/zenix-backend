@@ -1,4 +1,3 @@
-import Entities
 import Vapor
 
 extension Error where Self == ZenixError {

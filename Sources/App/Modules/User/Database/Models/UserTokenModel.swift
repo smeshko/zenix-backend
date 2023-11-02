@@ -1,5 +1,6 @@
-import Vapor
 import Fluent
+import Framework
+import Vapor
 
 final class UserTokenModel: DatabaseModelInterface {
     typealias Module = UserModule

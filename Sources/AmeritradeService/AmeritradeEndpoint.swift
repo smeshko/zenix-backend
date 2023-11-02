@@ -2,7 +2,7 @@ import Foundation
 import Entities
 
 /// An enum used to route the different types of requests.
-public enum AmeritradeEndpoint: EndpointProtocol {
+public enum AmeritradeEndpoint: Endpoint {
     // auth
     case refresh(_ refreshToken: String, _ clientId: String)
         
@@ -13,7 +13,7 @@ public enum AmeritradeEndpoint: EndpointProtocol {
     }
 
     public var url: URL? {
-        UrlBuilder(endpoint: self)
+        URLBuilder(endpoint: self)
             .components()
             .queryItems()
             .build()

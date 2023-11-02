@@ -1,18 +1,17 @@
 import Vapor
+import Framework
 import Fluent
 import FluentSQLiteDriver
+import FluentPostgresDriver
+
+extension Application {
+    static let databaseUrl = URL(string: Environment.get("DB_URL")!)!
+}
 
 public func configure(_ app: Application) throws {
 
-    app.routes.defaultMaxBodySize = "10mb"
-    
-    switch app.environment {
-    case .development, .testing:
-        app.databases.use(.sqlite(.memory), as: .sqlite)
-    default:
-        app.databases.use(.sqlite(.file("db.sqlite")), as: .sqlite)
-    }
-    
+    try app.databases.use(.postgres(url: Application.databaseUrl), as: .psql)
+
     let modules: [ModuleInterface] = [
         UserModule()
     ]
