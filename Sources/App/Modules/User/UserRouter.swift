@@ -23,8 +23,10 @@ struct UserRouter: RouteCollection {
             .grouped(UserTokenAuthenticator())
             .delete("delete", use: userController.delete)
         
+#if DEBUG
         api
             .grouped(UserTokenAuthenticator())
             .get("list", use: userController.list)
+#endif
     }
 }
