@@ -22,5 +22,9 @@ struct UserRouter: RouteCollection {
         api
             .grouped(UserTokenAuthenticator())
             .delete("delete", use: userController.delete)
+        
+        api
+            .grouped(UserTokenAuthenticator())
+            .get("list", use: userController.list)
     }
 }

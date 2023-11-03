@@ -4,6 +4,7 @@ import Vapor
 import Fluent
 
 extension User.Token.Detail: Content {}
+extension User.Account.List: Content {}
 
 struct UserController {
     
@@ -76,6 +77,19 @@ struct UserController {
         
         return .ok
     }
+    
+    #if DEBUG
+    func list(_ req: Request) async throws -> [User.Account.List] {
+        guard let _ = req.auth.get(AuthenticatedUser.self) else {
+            throw Abort(.unauthorized)
+        }
+    
+        return try await UserAccountModel.query(on: req.db).all()
+            .map { model in
+                User.Account.List.init(id: model.id!, email: model.email)
+            }
+    }
+    #endif
 }
 
 extension User.Account.Create: Validatable {

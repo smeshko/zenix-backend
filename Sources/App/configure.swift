@@ -1,10 +1,7 @@
 import Vapor
 import Framework
 import Fluent
-import FluentSQLiteDriver
 import FluentPostgresDriver
-import Prometheus
-import Metrics
 
 public func configure(_ app: Application) throws {
 
@@ -14,12 +11,9 @@ public func configure(_ app: Application) throws {
         app.logger.error("DATABASE_URL empty")
     }
 
-    let promClient = PrometheusMetricsFactory(client: PrometheusClient())
-    MetricsSystem.bootstrap(promClient)
-
     let modules: [ModuleInterface] = [
-        UserModule(),
-        MetricsModule()
+        RootModule(),
+        UserModule()
     ]
     
     for module in modules {

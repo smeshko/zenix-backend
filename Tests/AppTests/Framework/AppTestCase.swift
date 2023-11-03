@@ -1,6 +1,7 @@
 @testable import App
 import Entities
 import XCTVapor
+import FluentSQLiteDriver
 
 class AppTestCase: XCTestCase {
     

@@ -3,7 +3,6 @@ import PackageDescription
 
 let fluent = Target.Dependency.product(name: "Fluent", package: "fluent")
 let vapor = Target.Dependency.product(name: "Vapor", package: "vapor")
-let prometheus = Target.Dependency.product(name: "SwiftPrometheus", package: "SwiftPrometheus")
 
 let package = Package(
     name: "Zenix",
@@ -24,7 +23,6 @@ let package = Package(
         // 🪶 Fluent driver for SQLite.
         .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
-        .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.2"),
 
     ],
     targets: [
@@ -35,7 +33,7 @@ let package = Package(
         .executableTarget(
             name: "App",
             dependencies: [
-                "Common", "Entities", "Framework", vapor, fluent, prometheus,
+                "Common", "Entities", "Framework", vapor, fluent,
                 .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
                 .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
             ]
