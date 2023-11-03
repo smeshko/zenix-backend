@@ -13,14 +13,16 @@ extension Application {
 public func configure(_ app: Application) throws {
 
 //    try app.databases.use(.postgres(url: Application.databaseUrl), as: .psql)
-    app.databases.use(DatabaseConfigurationFactory.postgres(configuration: .init(
-        hostname: Environment.get("DATABASE_HOST")!,
-        port: Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? SQLPostgresConfiguration.ianaPortNumber,
-        username: Environment.get("DATABASE_USERNAME")!,
-        password: Environment.get("DATABASE_PASSWORD")!,
-        database: Environment.get("DATABASE_NAME")!,
-        tls: .prefer(try .init(configuration: .clientDefault)))
-    ), as: .psql)
+    if let databaseURL = Environment.get("DATABASE_URL") {
+        try app.databases.use(.postgres(url: databaseURL), as: .psql)
+    } else {
+        app.logger.error("DATABASE_URL empty")
+        // Handle missing DATABASE_URL here...
+        //
+        // Alternatively, you could also set a different config
+        // depending on wether app.environment is set to to
+        // `.development` or `.production`
+    }
 
     let promClient = PrometheusMetricsFactory(client: PrometheusClient())
     MetricsSystem.bootstrap(promClient)
