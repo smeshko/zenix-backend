@@ -13,6 +13,7 @@ public func configure(_ app: Application) throws {
 
     let modules: [ModuleInterface] = [
         RootModule(),
+        MetricsModule(),
         UserModule()
     ]
     

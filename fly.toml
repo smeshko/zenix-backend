@@ -15,3 +15,11 @@ primary_region = "arn"
   auto_start_machines = true
   min_machines_running = 0
   processes = ["app"]
+
+[metrics]
+  port = 4000
+  path = "/metrics"
+  
+[mount]
+  source = "grafana_storage"
+  destination = "/var/lib/grafana"
