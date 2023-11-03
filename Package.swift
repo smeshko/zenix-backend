@@ -3,6 +3,7 @@ import PackageDescription
 
 let fluent = Target.Dependency.product(name: "Fluent", package: "fluent")
 let vapor = Target.Dependency.product(name: "Vapor", package: "vapor")
+let prometheus = Target.Dependency.product(name: "SwiftPrometheus", package: "SwiftPrometheus")
 
 let package = Package(
     name: "Zenix",
@@ -22,17 +23,19 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent.git", from: "4.8.0"),
         // 🪶 Fluent driver for SQLite.
         .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.0.0"),
-        .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0")
+        .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
+        .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.2"),
+
     ],
     targets: [
         .target(name: "Common"),
         .target(name: "Entities"),
         .target(name: "Framework", dependencies: ["Entities", vapor, fluent]),
-        .target(name: "AmeritradeService", dependencies: ["Common", "Entities"]),
+        .target(name: "AmeritradeService", dependencies: ["Common", "Entities", "Framework"]),
         .executableTarget(
             name: "App",
             dependencies: [
-                "Common", "Entities", "Framework", vapor, fluent,
+                "Common", "Entities", "Framework", vapor, fluent, prometheus,
                 .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
                 .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
             ]
