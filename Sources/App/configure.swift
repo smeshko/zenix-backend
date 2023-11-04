@@ -3,6 +3,12 @@ import Framework
 import Fluent
 import FluentPostgresDriver
 
+extension Environment {
+    static var staging: Environment {
+        .custom(name: "staging")
+    }
+}
+
 public func configure(_ app: Application) throws {
 
     if let databaseURL = Environment.get("DATABASE_URL") {
@@ -10,6 +16,8 @@ public func configure(_ app: Application) throws {
     } else {
         app.logger.error("DATABASE_URL empty")
     }
+
+    app.logger.info("\((try? Environment.detect().name) ?? "env not detected")")
 
     let modules: [ModuleInterface] = [
         RootModule(),
