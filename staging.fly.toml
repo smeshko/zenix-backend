@@ -3,11 +3,11 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "zenix"
+app = "zenix-staging"
 primary_region = "arn"
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = "staging.Dockerfile"
 
 [[mounts]]
   source = "grafana_storage"

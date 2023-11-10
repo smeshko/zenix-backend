@@ -3,12 +3,9 @@ import Entities
 import XCTVapor
 import FluentSQLiteDriver
 
+extension User.Account.Login: Content {}
+
 class AppTestCase: XCTestCase {
-    
-    struct UserLogin: Content {
-        let email: String
-        let password: String
-    }
     
     func bearerHeader(_ token: String) -> (String, String) {
         ("Authorization", "Bearer \(token)")
@@ -25,8 +22,29 @@ class AppTestCase: XCTestCase {
         return app
     }
     
+    func create(
+        _ user: User.Account.Create,
+        _ app: Application
+    ) throws -> User.Token.Detail {
+        var userDetail: User.Token.Detail?
+        
+        try app.testable(method: .inMemory)
+            .test(.POST, "/api/user/sign-up", content: user)
+        { response in
+            XCTAssertContent(User.Token.Detail.self, response) { content in
+                userDetail = content
+            }
+        }
+        guard let result = userDetail else {
+            XCTFail("Signup failed")
+            throw Abort(.unauthorized)
+        }
+        return result
+
+    }
+    
     func authenticate(
-        _ user: UserLogin,
+        _ user: User.Account.Login,
         _ app: Application
     ) throws -> User.Token.Detail {
         var token: User.Token.Detail?

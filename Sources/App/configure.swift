@@ -17,12 +17,13 @@ public func configure(_ app: Application) throws {
         app.logger.error("DATABASE_URL empty")
     }
 
-    app.logger.info("\((try? Environment.detect().name) ?? "env not detected")")
+    app.logger.info("Environment: \((try? Environment.detect().name) ?? "env not detected")")
 
     let modules: [ModuleInterface] = [
         RootModule(),
         MetricsModule(),
-        UserModule()
+        UserModule(),
+        ContestModule()
     ]
     
     for module in modules {

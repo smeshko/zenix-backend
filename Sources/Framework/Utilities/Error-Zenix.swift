@@ -1,6 +1,6 @@
 import Vapor
 
-extension Error where Self == ZenixError {
+public extension Error where Self == ZenixError {
     static func decodingError(_ decodedType: String, _ missingKey: String?) -> ZenixError {
         ZenixError(type: .decodingError(decodedType, missingKey))
     }
@@ -12,9 +12,16 @@ extension Error where Self == ZenixError {
     static func internalError(_ info: String?) -> ZenixError {
         ZenixError(type: .internalError(info ?? ""))
     }
-}
-
-extension ZenixError: AbortError {
-    public var reason: String { additionalInformation }
-    public var status: HTTPStatus { HTTPStatus(statusCode: statusCode) }
+    
+    static func creatorCannotLeaveContest() -> ZenixError {
+        .init(type: .creatorCannotLeaveContest)
+    }
+    
+    static func userAlreadyParticipantInContest() -> ZenixError {
+        .init(type: .userAlreadyParticipantInContest)
+    }
+    
+    static func userNotInContest() -> ZenixError {
+        .init(type: .userNotInContest)
+    }
 }

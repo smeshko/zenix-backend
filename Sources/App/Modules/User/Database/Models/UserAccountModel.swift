@@ -21,6 +21,9 @@ final class UserAccountModel: DatabaseModelInterface {
     @Field(key: FieldKeys.v1.password)
     var password: String
     
+    @Siblings(through: ContestParticipantModel.self, from: \.$user, to: \.$contest)
+    var contests: [ContestModel]
+
     init() { }
     
     init(
