@@ -61,6 +61,9 @@ final class ContestModel: DatabaseModelInterface {
     
     @Field(key: FieldKeys.v1.tradesLimit)
     var tradesLimit: Int
+    
+    @Enum(key: FieldKeys.v2.status)
+    var status: Status
 
     init() {}
 
@@ -124,6 +127,14 @@ extension ContestModel {
             "visibility_enum"
         }
     }
+    
+    enum Status: String, Codable {
+        case ready, running, archived
+        
+        static var schema: String {
+            "contest_status_enum"
+        }
+    }
 }
 
 extension ContestModel {
@@ -147,6 +158,10 @@ extension ContestModel {
             static var marginAllowed: FieldKey { "margin_allowed" }
             static var minFund: FieldKey { "min_fund" }
             static var tradesLimit: FieldKey { "trades_limit" }
+        }
+        
+        struct v2 {
+            static var status: FieldKey { "status" }
         }
     }
 }

@@ -32,6 +32,36 @@ enum UserMigrations {
         }
     }
     
+    struct v2: AsyncMigration {
+        func prepare(on database: Database) async throws {
+            let status = try await database.enum(UserAccountModel.Status.schema)
+                .case(UserAccountModel.Status.notAccepting.rawValue)
+                .case(UserAccountModel.Status.openForChallenge.rawValue)
+                .create()
+
+            try await database.schema(UserAccountModel.schema)
+                .field(
+                    UserAccountModel.FieldKeys.v2.status,
+                    status, .required,
+                    .sql(.default(UserAccountModel.Status.notAccepting.rawValue))
+                )
+                .field(
+                    UserAccountModel.FieldKeys.v2.level, 
+                    .int16, .required, .sql(.default(0))
+                )
+                .update()
+        }
+        
+        func revert(on database: Database) async throws {
+            try await database.schema(UserAccountModel.schema)
+                .deleteField(UserAccountModel.FieldKeys.v2.status)
+                .deleteField(UserAccountModel.FieldKeys.v2.level)
+                .update()
+            
+            try await database.enum(UserAccountModel.Status.schema).delete()
+        }
+    }
+    
     struct seed: AsyncMigration {
         
         func prepare(on db: Database) async throws {
@@ -39,7 +69,9 @@ enum UserMigrations {
             let password = "ChangeMe1"
             let user = UserAccountModel(
                 email: email,
-                password: try Bcrypt.hash(password)
+                password: try Bcrypt.hash(password),
+                status: .notAccepting,
+                level: 0
             )
             try await user.create(on: db)
         }

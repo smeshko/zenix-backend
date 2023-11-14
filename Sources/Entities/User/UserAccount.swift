@@ -18,26 +18,38 @@ public extension User.Account {
     struct List: Codable {
         public let id: UUID
         public let email: String
+        public let status: Status
+        public let level: Int
         
         public init(
             id: UUID,
-            email: String
+            email: String,
+            status: Status,
+            level: Int
         ) {
             self.id = id
             self.email = email
+            self.status = status
+            self.level = level
         }
     }
     
     struct Detail: Codable {
         public let id: UUID
         public let email: String
-        
+        public let status: Status
+        public let level: Int
+
         public init(
             id: UUID,
-            email: String
+            email: String,
+            status: Status,
+            level: Int
         ) {
             self.id = id
             self.email = email
+            self.status = status
+            self.level = level
         }
     }
     
@@ -78,5 +90,10 @@ public extension User.Account {
             self.email = email
             self.password = password
         }
+    }
+    
+    enum Status: String, Codable {
+        case openForChallenge = "open_for_challenge"
+        case notAccepting = "not_accepting"
     }
 }

@@ -18,6 +18,12 @@ final class ContestParticipantModel: Model {
     
     @Enum(key: FieldKeys.v1.role)
     var role: Role
+    
+    @OptionalField(key: FieldKeys.v2.accountNumber)
+    var accountNumber: String?
+    
+    @Field(key: FieldKeys.v2.rank)
+    var rank: Int
 
     init() { }
 
@@ -26,12 +32,15 @@ final class ContestParticipantModel: Model {
         contest: ContestModel,
         user: UserAccountModel,
         role: Role,
-        dateRegistered: Date
+        accountNumber: String?,
+        rank: Int
     ) throws {
         self.id = id
         self.$contest.id = try contest.requireID()
         self.$user.id = try user.requireID()
         self.role = role
+        self.accountNumber = accountNumber
+        self.rank = rank
     }
 }
 
@@ -43,6 +52,11 @@ extension ContestParticipantModel {
             static var createdAt: FieldKey { "created_at" }
             static var role: FieldKey { "role" }
         }
+        
+        struct v2 {
+            static var accountNumber: FieldKey { "account_number" }
+            static var rank: FieldKey { "rank" }
+        }
     }
 }
 
@@ -50,6 +64,7 @@ extension ContestParticipantModel {
     enum Role: String, Codable {
         case creator
         case participant
+        case applicant
         
         static var schema: String {
             "role_enum"

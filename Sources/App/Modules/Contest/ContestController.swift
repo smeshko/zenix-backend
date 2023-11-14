@@ -23,7 +23,12 @@ struct ContestController {
         return try .init(
             model: contestModel,
             participants: [],
-            creator: .init(id: try userModel.requireID(), email: userModel.email)
+            creator: .init(
+                id: try userModel.requireID(),
+                email: userModel.email,
+                status: userModel.status.local,
+                level: userModel.level
+            )
         )
     }
 
@@ -255,6 +260,11 @@ private extension User.Account.Detail {
         guard let model else {
             throw Abort(.badRequest)
         }
-        self.init(id: try model.requireID(), email: model.email)
+        self.init(
+            id: try model.requireID(),
+            email: model.email,
+            status: model.status.local,
+            level: model.level
+        )
     }
 }

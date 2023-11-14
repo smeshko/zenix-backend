@@ -68,4 +68,43 @@ enum ContestMigrations {
             try await database.enum(ContestModel.Visibility.schema).delete()
         }
     }
+    
+    struct v2: AsyncMigration {
+        func prepare(on database: Database) async throws {
+            let status = try await database.enum(ContestModel.Status.schema)
+                .case(ContestModel.Status.ready.rawValue)
+                .case(ContestModel.Status.running.rawValue)
+                .case(ContestModel.Status.archived.rawValue)
+                .create()
+
+            try await database.schema(ContestModel.schema)
+                .field(ContestModel.FieldKeys.v2.status, status, .required, .sql(.default("ready")))
+                .update()
+            
+            let _ = try await database.enum(ContestParticipantModel.Role.schema)
+                .case(ContestParticipantModel.Role.applicant.rawValue)
+                .update()
+
+            try await database.schema(ContestParticipantModel.schema)
+                .field(ContestParticipantModel.FieldKeys.v2.accountNumber, .string)
+                .field(ContestParticipantModel.FieldKeys.v2.rank, .int16, .required, .sql(.default(0)))
+                .update()
+        }
+        
+        func revert(on database: Database) async throws {
+            try await database.schema(ContestModel.schema)
+                .deleteField(ContestModel.FieldKeys.v2.status)
+                .update()
+            try await database.enum(ContestModel.Status.schema).delete()
+            
+            _ = try await database.enum(ContestParticipantModel.Role.schema)
+                .deleteCase(ContestParticipantModel.Role.applicant.rawValue)
+                .update()
+            
+            try await database.schema(ContestParticipantModel.schema)
+                .deleteField(ContestParticipantModel.FieldKeys.v2.accountNumber)
+                .deleteField(ContestParticipantModel.FieldKeys.v2.rank)
+                .update()
+        }
+    }
 }

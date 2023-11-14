@@ -223,7 +223,12 @@ private extension Contest.Detail {
 
 private extension User.Account.Detail {
     static func mock() -> User.Account.Detail {
-        .init(id: UUID(uuidString: uuid)!, email: "mock@jock.com")
+        .init(
+            id: UUID(uuidString: uuid)!,
+            email: "mock@jock.com",
+            status: .notAccepting,
+            level: 0
+        )
     }
 }
 
