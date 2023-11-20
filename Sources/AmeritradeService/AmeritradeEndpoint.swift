@@ -1,5 +1,6 @@
 import Foundation
 import Entities
+import Common
 
 /// An enum used to route the different types of requests.
 public enum AmeritradeEndpoint: Endpoint {
