@@ -5,6 +5,7 @@ let fluent = Target.Dependency.product(name: "Fluent", package: "fluent")
 let vapor = Target.Dependency.product(name: "Vapor", package: "vapor")
 let prometheus = Target.Dependency.product(name: "SwiftPrometheus", package: "SwiftPrometheus")
 let entities = Target.Dependency.product(name: "Entities", package: "zenix-entities")
+let common = Target.Dependency.product(name: "Common", package: "zenix-common")
 
 let package = Package(
     name: "Zenix",
@@ -12,7 +13,6 @@ let package = Package(
         .macOS(.v13)
     ],
     products: [
-        .library(name: "Common", targets: ["Common"]),
         .library(name: "Framework", targets: ["Framework"]),
         .library(name: "AmeritradeService", targets: ["AmeritradeService"]),
     ],
@@ -27,16 +27,15 @@ let package = Package(
         .package(url: "https://github.com/vapor/queues-redis-driver.git", from: "1.0.0"),
         .package(url: "https://github.com/binarybirds/swift-html", from: "1.7.0"),
         .package(url: "https://github.com/smeshko/zenix-entities", from: "0.1.0"),
-
+        .package(url: "https://github.com/smeshko/zenix-common", from: "0.1.0"),
     ],
     targets: [
-        .target(name: "Common"),
         .target(name: "Framework", dependencies: [entities, vapor, fluent]),
-        .target(name: "AmeritradeService", dependencies: ["Common", entities, "Framework"]),
+        .target(name: "AmeritradeService", dependencies: [common, entities, "Framework"]),
         .executableTarget(
             name: "App",
             dependencies: [
-                "Common", entities, "Framework", vapor, fluent, prometheus,
+                common, entities, "Framework", vapor, fluent, prometheus,
                 .product(name: "QueuesRedisDriver", package: "queues-redis-driver"),
                 .product(name: "SwiftHtml", package: "swift-html"),
                 .product(name: "SwiftSvg", package: "swift-html"),

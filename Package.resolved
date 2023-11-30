@@ -334,6 +334,15 @@
       }
     },
     {
+      "identity" : "zenix-common",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/smeshko/zenix-common",
+      "state" : {
+        "revision" : "db0667d1fa6f40c0d9ab0fdf7ad17c9229c58b0f",
+        "version" : "0.1.1"
+      }
+    },
+    {
       "identity" : "zenix-entities",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/smeshko/zenix-entities",
