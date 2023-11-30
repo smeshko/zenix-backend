@@ -38,10 +38,10 @@ final class PasswordTokenRepositoryTests: XCTestCase {
     
     func testCount() async throws {
         let token = PasswordTokenModel(userID: try user.requireID(), value: "token123")
-        let token2 = PasswordTokenModel(userID: try user.requireID(), value: "token123")
+        let token2 = PasswordTokenModel(userID: try user.requireID(), value: "token1234")
         try await [token, token2].create(on: app.db)
         let count = try await repository.count()
-        XCTAssertEqual(count, 1)
+        XCTAssertEqual(count, 2)
     }
     
     func testCreate() async throws {

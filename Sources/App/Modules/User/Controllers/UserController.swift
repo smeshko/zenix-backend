@@ -26,9 +26,7 @@ struct UserController {
     }
     
     func list(_ req: Request) async throws -> [User.Account.List.Response] {
-        let payload = try req.auth.require(Payload.self)
-
-        return try await UserAccountModel.query(on: req.db).all()
+        try await UserAccountModel.query(on: req.db).all()
             .map { model in
                 try User.Account.List.Response(from: model)
             }
