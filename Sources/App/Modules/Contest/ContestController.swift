@@ -23,12 +23,7 @@ struct ContestController {
         return try .init(
             model: contestModel,
             participants: [],
-            creator: .init(
-                id: try userModel.requireID(),
-                email: userModel.email,
-                status: userModel.status.local,
-                level: userModel.level
-            )
+            creator: .init(from: userModel)
         )
     }
 
@@ -75,14 +70,14 @@ struct ContestController {
             pivot.role = .participant
         }
         
-        let creator = try await User.Account.Detail(model: contest.$creator.get(on: req.db))
+        let creator = try await User.Account.Detail.Response(from: contest.$creator.get(on: req.db))
         let contestParticipants = try await ContestParticipantModel.query(on: req.db)
             .all()
             .map(\.$user.id)
             .asyncMap {
-                try await UserAccountModel.find($0, on: req.db)
+                try await UserAccountModel.find($0, on: req.db)!
             }
-            .map(User.Account.Detail.init(model:))
+            .map(User.Account.Detail.Response.init(from:))
                 
         
         return try .init(
@@ -191,8 +186,8 @@ private extension ContestModel.Visibility {
 private extension Contest.Detail {
     init(
         model: ContestModel,
-        participants: [User.Account.Detail],
-        creator: User.Account.Detail
+        participants: [User.Account.Detail.Response],
+        creator: User.Account.Detail.Response
     ) throws {
         self.init(
             id: try model.requireID(),
@@ -231,8 +226,8 @@ private extension Contest.List {
             id: try model.requireID(),
             name: model.name,
             description: model.description,
-            creator: try User.Account.Detail(model: model.$creator.get(on: db)),
-            participants: try (model.$participants.get(on: db)).map(User.Account.Detail.init(model:)),
+            creator: try User.Account.Detail.Response(from: model.$creator.get(on: db)),
+            participants: try (model.$participants.get(on: db)).map(User.Account.Detail.Response.init(from:)),
             winCondition: model.winCondition.local,
             targetProfitRatio: model.targetProfitRatio,
             visibility: model.visibility.local,
@@ -251,20 +246,6 @@ private extension Contest.List {
             marginAllowed: model.marginAllowed,
             minFund: model.minFund,
             tradesLimit: model.tradesLimit
-        )
-    }
-}
-
-private extension User.Account.Detail {
-    init(model: UserAccountModel?) throws {
-        guard let model else {
-            throw Abort(.badRequest)
-        }
-        self.init(
-            id: try model.requireID(),
-            email: model.email,
-            status: model.status.local,
-            level: model.level
         )
     }
 }

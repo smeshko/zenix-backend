@@ -4,6 +4,8 @@ import Fluent
 
 final class ContestModel: DatabaseModelInterface {
     typealias Module = ContestModule
+    
+    static var schema: String { "contests" }
         
     @ID()
     var id: UUID?

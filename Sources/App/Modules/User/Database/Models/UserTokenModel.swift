@@ -5,6 +5,8 @@ import Vapor
 final class UserTokenModel: DatabaseModelInterface {
     typealias Module = UserModule
     
+    static var schema: String { "user_tokens" }
+    
     struct FieldKeys {
         struct v1 {
             static var value: FieldKey { "value" }

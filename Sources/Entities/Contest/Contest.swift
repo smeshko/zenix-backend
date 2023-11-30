@@ -79,8 +79,8 @@ public enum Contest {
         public let id: UUID
         public let name: String
         public let description: String
-        public let creator: User.Account.Detail
-        public let participants: [User.Account.Detail]
+        public let creator: User.Account.Detail.Response
+        public let participants: [User.Account.Detail.Response]
         public let winCondition: WinCondition
         public let targetProfitRatio: Double?
         public let visibility: Visibility
@@ -100,8 +100,8 @@ public enum Contest {
             id: UUID,
             name: String,
             description: String,
-            creator: User.Account.Detail,
-            participants: [User.Account.Detail],
+            creator: User.Account.Detail.Response,
+            participants: [User.Account.Detail.Response],
             winCondition: Contest.WinCondition,
             targetProfitRatio: Double? = nil,
             visibility: Contest.Visibility,
@@ -143,8 +143,8 @@ public enum Contest {
         public let id: UUID
         public let name: String
         public let description: String
-        public let creator: User.Account.Detail
-        public let participants: [User.Account.Detail]
+        public let creator: User.Account.Detail.Response
+        public let participants: [User.Account.Detail.Response]
         public let winCondition: WinCondition
         public let targetProfitRatio: Double?
         public let visibility: Visibility
@@ -164,8 +164,8 @@ public enum Contest {
             id: UUID,
             name: String,
             description: String,
-            creator: User.Account.Detail,
-            participants: [User.Account.Detail],
+            creator: User.Account.Detail.Response,
+            participants: [User.Account.Detail.Response],
             winCondition: Contest.WinCondition,
             targetProfitRatio: Double? = nil,
             visibility: Contest.Visibility,

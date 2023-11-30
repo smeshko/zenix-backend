@@ -10,19 +10,12 @@ public protocol DatabaseModelInterface: Fluent.Model
 {    
     associatedtype Module: ModuleInterface
 
-    static var identifier: String { get }
+    static var schema: String { get }
 }
 
-public extension DatabaseModelInterface {
-
-    static var schema: String {
-        Module.identifier + "_" + identifier
-    }
+public protocol TokenDatabaseModel: DatabaseModelInterface {
+    associatedtype User: DatabaseModelInterface
     
-    static var identifier: String {
-        String(describing: self)
-            .dropFirst(Module.identifier.count)
-            .dropLast(5)
-            .lowercased() + "s"
-    }
+    var user: User { get set }
+    var value: String { get set }
 }

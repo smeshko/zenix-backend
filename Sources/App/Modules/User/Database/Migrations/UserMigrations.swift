@@ -6,59 +6,31 @@ enum UserMigrations {
     struct v1: AsyncMigration {
         
         func prepare(on db: Database) async throws {
+            let status = try await db.enum(UserAccountModel.ChallengeStatus.schema)
+                .case(UserAccountModel.ChallengeStatus.notAccepting.rawValue)
+                .case(UserAccountModel.ChallengeStatus.openForChallenge.rawValue)
+                .create()
+
             try await db.schema(UserAccountModel.schema)
                 .id()
                 .field(UserAccountModel.FieldKeys.v1.email, .string, .required)
                 .field(UserAccountModel.FieldKeys.v1.password, .string, .required)
-                .unique(on: UserAccountModel.FieldKeys.v1.email)
-                .create()
-            
-            try await db.schema(UserTokenModel.schema)
-                .id()
-                .field(UserTokenModel.FieldKeys.v1.value, .string, .required)
-                .field(UserTokenModel.FieldKeys.v1.userId, .uuid, .required)
-                .foreignKey(
-                    UserTokenModel.FieldKeys.v1.userId,
-                    references: UserAccountModel.schema, .id,
-                    onDelete: .cascade
+                .field(UserAccountModel.FieldKeys.v1.fullName, .string, .required)
+                .field(UserAccountModel.FieldKeys.v1.isAdmin, .bool, .required)
+                .field(UserAccountModel.FieldKeys.v1.isEmailVerified, .bool, .required)
+                .field(UserAccountModel.FieldKeys.v1.level, .int16, .required)
+                .field(
+                    UserAccountModel.FieldKeys.v1.status,
+                    status, .required,
+                    .sql(.default(UserAccountModel.ChallengeStatus.notAccepting.rawValue))
                 )
-                .unique(on: UserTokenModel.FieldKeys.v1.value)
+                .unique(on: UserAccountModel.FieldKeys.v1.email)
                 .create()
         }
 
         func revert(on db: Database) async throws  {
-            try await db.schema(UserTokenModel.schema).delete()
             try await db.schema(UserAccountModel.schema).delete()
-        }
-    }
-    
-    struct v2: AsyncMigration {
-        func prepare(on database: Database) async throws {
-            let status = try await database.enum(UserAccountModel.Status.schema)
-                .case(UserAccountModel.Status.notAccepting.rawValue)
-                .case(UserAccountModel.Status.openForChallenge.rawValue)
-                .create()
-
-            try await database.schema(UserAccountModel.schema)
-                .field(
-                    UserAccountModel.FieldKeys.v2.status,
-                    status, .required,
-                    .sql(.default(UserAccountModel.Status.notAccepting.rawValue))
-                )
-                .field(
-                    UserAccountModel.FieldKeys.v2.level, 
-                    .int16, .required, .sql(.default(0))
-                )
-                .update()
-        }
-        
-        func revert(on database: Database) async throws {
-            try await database.schema(UserAccountModel.schema)
-                .deleteField(UserAccountModel.FieldKeys.v2.status)
-                .deleteField(UserAccountModel.FieldKeys.v2.level)
-                .update()
-            
-            try await database.enum(UserAccountModel.Status.schema).delete()
+            try await db.enum(UserAccountModel.ChallengeStatus.schema).delete()
         }
     }
     
@@ -70,6 +42,9 @@ enum UserMigrations {
             let user = UserAccountModel(
                 email: email,
                 password: try Bcrypt.hash(password),
+                fullName: "John Doe",
+                isAdmin: true,
+                isEmailVerified: true,
                 status: .notAccepting,
                 level: 0
             )

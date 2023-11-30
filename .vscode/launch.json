@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:Zenix}",
+            "name": "Debug App",
+            "program": "${workspaceFolder:Zenix}/.build/debug/App",
+            "preLaunchTask": "swift: Build Debug App"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:Zenix}",
+            "name": "Release App",
+            "program": "${workspaceFolder:Zenix}/.build/release/App",
+            "preLaunchTask": "swift: Build Release App"
+        }
+    ]
+}

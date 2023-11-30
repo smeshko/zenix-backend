@@ -2,31 +2,24 @@ import Vapor
 
 struct UserRouter: RouteCollection {
     
-    let userController = UserController()
+    let controller = UserController()
     
     func boot(routes: RoutesBuilder) throws {
         let api = routes
             .grouped("api")
             .grouped("user")
+                
+        api
+            .grouped(UserPayloadAuthenticator())
+            .delete("delete", use: controller.delete)
         
         api
-            .grouped(UserCredentialsAuthenticator())
-            .post("sign-in", use: userController.signIn)
-        
-        api.post("sign-up", use: userController.signUp)
-        
+            .grouped(UserPayloadAuthenticator())
+            .get("me", use: controller.getCurrentUser)
+
         api
-            .grouped(UserTokenAuthenticator())
-            .post("logout", use: userController.logout)
-        
-        api
-            .grouped(UserTokenAuthenticator())
-            .delete("delete", use: userController.delete)
-        
-#if DEBUG
-        api
-            .grouped(UserTokenAuthenticator())
-            .get("list", use: userController.list)
-#endif
+            .grouped(UserPayloadAuthenticator())
+            .grouped(EnsureAdminUserMiddleware())
+            .get("list", use: controller.list)
     }
 }
