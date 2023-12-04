@@ -4,8 +4,6 @@ import Fluent
 import XCTVapor
 import Crypto
 
-extension User.Auth.Login.Request: Content {}
-
 final class LoginTests: XCTestCase {
     var app: Application!
     var testWorld: TestWorld!

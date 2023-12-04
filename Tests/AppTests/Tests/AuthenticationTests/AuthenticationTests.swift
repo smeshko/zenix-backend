@@ -22,7 +22,7 @@ final class AuthenticationTests: XCTestCase {
         let user = UserAccountModel(email: "test@test.com", password: "123", fullName: "Test User", isAdmin: true)
         try await app.repositories.users.create(user)
         
-        try app.test(.GET, "api/user/me", user: user, afterResponse: { res in
+        try await app.test(.GET, "api/user/me", user: user, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertContent(User.Account.Detail.Response.self, res) { userContent in
                 XCTAssertEqual(userContent.email, "test@test.com")

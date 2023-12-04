@@ -6,6 +6,9 @@ protocol PasswordTokenRepository: Repository {
     func find(forUserID id: UUID) async throws -> PasswordTokenModel?
     func find(token: String) async throws -> PasswordTokenModel?
     func delete(forUserID id: UUID) async throws
+    func create(_ model: PasswordTokenModel) async throws
+    func all() async throws -> [PasswordTokenModel]
+    func find(id: UUID?) async throws -> PasswordTokenModel?
 }
 
 struct DatabasePasswordTokenRepository: PasswordTokenRepository, DatabaseRepository {
@@ -29,6 +32,18 @@ struct DatabasePasswordTokenRepository: PasswordTokenRepository, DatabaseReposit
         try await PasswordTokenModel.query(on: database)
             .filter(\.$user.$id == id)
             .delete()
+    }
+    
+    func all() async throws -> [PasswordTokenModel] {
+        try await PasswordTokenModel.query(on: database).all()
+    }
+    
+    func find(id: UUID?) async throws -> PasswordTokenModel? {
+        try await PasswordTokenModel.find(id, on: database)
+    }
+    
+    func create(_ model: PasswordTokenModel) async throws {
+        try await model.create(on: database)
     }
 }
 

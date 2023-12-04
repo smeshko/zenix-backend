@@ -8,11 +8,11 @@ struct ContestRouter: RouteCollection {
         let contestApi = routes
             .grouped("api")
             .grouped("contest")
-            .grouped(UserTokenAuthenticator())
+            .grouped(UserPayloadAuthenticator())
 
         contestApi.post("create", use: controller.create)
         contestApi.get("list", use: controller.list)
-        
+
         let contestIdApi = contestApi
             .grouped(":contestID")
 

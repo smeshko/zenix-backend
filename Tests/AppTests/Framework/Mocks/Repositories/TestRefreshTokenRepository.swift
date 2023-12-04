@@ -24,16 +24,16 @@ class TestRefreshTokenRepository: RefreshTokenRepository, TestRepository {
         tokens.removeAll(where: { $0.$user.id == id })
     }
     
-    func create(_ model: some DatabaseModelInterface) async throws {
+    func create(_ model: RefreshTokenModel) async throws {
         model.id = UUID()
-        tokens.append(model as! RefreshTokenModel)
+        tokens.append(model)
     }
     
-    func all() async throws -> [any DatabaseModelInterface] {
+    func all() async throws -> [RefreshTokenModel] {
         tokens
     }
     
-    func find(id: UUID?) async throws -> (any DatabaseModelInterface)? {
+    func find(id: UUID?) async throws -> (RefreshTokenModel)? {
         tokens.first(where: { $0.id == id })
     }
     

@@ -347,8 +347,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/smeshko/zenix-entities",
       "state" : {
-        "revision" : "937298ed35fec778d4223c0615b9639613bb0920",
-        "version" : "0.1.1"
+        "revision" : "89612249dff903da83c1c7a55d0224f3771ed410",
+        "version" : "0.1.2"
       }
     }
   ],

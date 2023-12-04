@@ -2,7 +2,7 @@ import Framework
 import Vapor
 import Fluent
 
-final class UserAccountModel: DatabaseModelInterface {
+final class UserAccountModel: DatabaseModelInterface, Authenticatable {
     typealias Module = UserModule
     static var schema: String { "users" }
     @ID()

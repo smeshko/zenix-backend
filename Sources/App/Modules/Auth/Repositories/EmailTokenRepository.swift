@@ -7,6 +7,10 @@ protocol EmailTokenRepository: Repository {
     func find(forUserID id: UUID) async throws -> EmailTokenModel?
     func find(token: String) async throws -> EmailTokenModel?
     func delete(forUserID id: UUID) async throws
+    func create(_ model: EmailTokenModel) async throws
+    func all() async throws -> [EmailTokenModel]
+    func find(id: UUID?) async throws -> EmailTokenModel?
+
 }
 
 struct DatabaseEmailTokenRepository: EmailTokenRepository, DatabaseRepository {
@@ -27,10 +31,23 @@ struct DatabaseEmailTokenRepository: EmailTokenRepository, DatabaseRepository {
     }
     
     func delete(forUserID id: UUID) async throws {
-        try await PasswordTokenModel.query(on: database)
+        try await EmailTokenModel.query(on: database)
             .filter(\.$user.$id == id)
             .delete()
     }
+    
+    func all() async throws -> [EmailTokenModel] {
+        try await EmailTokenModel.query(on: database).all()
+    }
+    
+    func find(id: UUID?) async throws -> EmailTokenModel? {
+        try await EmailTokenModel.find(id, on: database)
+    }
+    
+    func create(_ model: EmailTokenModel) async throws {
+        try await model.create(on: database)
+    }
+
 }
 
 extension Application.Repositories {

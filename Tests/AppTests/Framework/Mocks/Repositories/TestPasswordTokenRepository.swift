@@ -23,16 +23,16 @@ final class TestPasswordTokenRepository: PasswordTokenRepository, TestRepository
         tokens.removeAll(where: { $0.$user.id == id })
     }
     
-    func create(_ model: some DatabaseModelInterface) async throws {
+    func create(_ model: PasswordTokenModel) async throws {
         model.id = UUID()
-        tokens.append(model as! PasswordTokenModel)
+        tokens.append(model)
     }
     
-    func all() async throws -> [any DatabaseModelInterface] {
+    func all() async throws -> [PasswordTokenModel] {
         tokens
     }
     
-    func find(id: UUID?) async throws -> (any DatabaseModelInterface)? {
+    func find(id: UUID?) async throws -> PasswordTokenModel? {
         tokens.first(where: { $0.id == id })
     }
     

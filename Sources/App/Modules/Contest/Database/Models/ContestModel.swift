@@ -79,15 +79,15 @@ final class ContestModel: DatabaseModelInterface {
         visibility: ContestModel.Visibility,
         minPlayers: Int,
         maxPlayers: Int,
-        minUserLevel: Int,
+        minUserLevel: Int = 0,
         instruments: [String],
         markets: [String],
         duration: TimeInterval,
         startDate: Date,
         endDate: Date,
-        marginAllowed: Bool,
+        marginAllowed: Bool = true,
         minFund: Double,
-        tradesLimit: Int
+        tradesLimit: Int = 0
     ) {
         self.id = id
         self.$creator.id = creatorID

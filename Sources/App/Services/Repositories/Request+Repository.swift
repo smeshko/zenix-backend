@@ -5,6 +5,7 @@ extension Request {
     var refreshTokens: any RefreshTokenRepository { application.repositories.refreshTokens.for(self) }
     var emailTokens: any EmailTokenRepository { application.repositories.emailTokens.for(self) }
     var passwordTokens: any PasswordTokenRepository { application.repositories.passwordTokens.for(self) }
+    var contests: any ContestRepository { application.repositories.contests.for(self) }
     
 //    var email: EmailVerifier { application.emailVerifiers.verifier.for(self) }
 }

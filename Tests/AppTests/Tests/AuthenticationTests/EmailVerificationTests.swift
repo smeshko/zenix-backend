@@ -31,7 +31,7 @@ final class EmailVerificationTests: XCTestCase {
             try req.query.encode(["token": expectedHash])
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
-            let user = try await XCTUnwrapAsync(await app.repositories.users.find(id: user.id!) as? UserAccountModel)
+            let user = try await XCTUnwrapAsync(await app.repositories.users.find(id: user.id!))
             XCTAssertEqual(user.isEmailVerified, true)
             let token = try await app.repositories.emailTokens.find(forUserID: user.requireID())
             XCTAssertNil(token)

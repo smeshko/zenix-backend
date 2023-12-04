@@ -67,7 +67,7 @@ public extension DataController {
         for req: Request,
         decodeResult: (ContentContainer) throws -> T
     ) async throws -> T {
-        guard let url = endpoint.url else { throw .urlNotFound(endpoint.path) }
+        guard let url = endpoint.url else { throw Abort(.notFound) }
     
         let response = try await req.client.get(
             URI(url: url),
@@ -82,7 +82,7 @@ public extension DataController {
         do {
             return try decodeResult(response.content)
         } catch _ as DecodingError {
-            throw .decodingError(String(describing: T.self), nil)
+            throw Abort(.badRequest)
         }
     }
 }

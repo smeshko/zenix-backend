@@ -6,22 +6,9 @@ import Fluent
 struct AuthController {
     
     func signIn(_ req: Request) async throws -> User.Auth.Login.Response {
-        try User.Auth.Login.Request.validate(content: req)
-        let loginRequest = try req.content.decode(User.Auth.Login.Request.self)
-        
-        guard let user = try await req.users.find(email: loginRequest.email) else {
-            throw AuthenticationError.invalidEmailOrPassword
-        }
-        
-        guard user.isEmailVerified else {
-            throw AuthenticationError.emailIsNotVerified
-        }
-        
-        guard try await req.password.async.verify(loginRequest.password, created: user.password) else {
-            throw AuthenticationError.invalidEmailOrPassword
-        }
-        
+        let user = try req.auth.require(UserAccountModel.self)
         try await req.refreshTokens.delete(forUserID: try user.requireID())
+        
         let token = req.random.generate(bits: 256)
         let refreshToken = RefreshTokenModel(value: SHA256.hash(token), userID: try user.requireID())
         
@@ -74,7 +61,7 @@ struct AuthController {
             throw AuthenticationError.refreshTokenHasExpired
         }
         
-        guard let user = try await req.users.find(id: token.$user.id) as? UserAccountModel else {
+        guard let user = try await req.users.find(id: token.$user.id) else {
             throw AuthenticationError.userNotFound
         }
         
@@ -94,12 +81,7 @@ struct AuthController {
     }
     
     func logout(_ req: Request) async throws -> HTTPStatus {
-        let payload = try req.auth.require(Payload.self)
-        
-        guard let user = try await req.users.find(id: payload.userID) else {
-            throw AuthenticationError.userNotFound
-        }
-        
+        let user = try req.auth.require(UserAccountModel.self)
         try await req.refreshTokens.delete(forUserID: user.requireID())
         return .ok
     }

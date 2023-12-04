@@ -13,9 +13,9 @@ class TestUserRepository: UserRepository, TestRepository {
     
     typealias Model = UserAccountModel
     
-    func create(_ model: some DatabaseModelInterface) async throws {
+    func create(_ model: UserAccountModel) async throws {
         model.id = UUID()
-        users.append(model as! UserAccountModel)
+        users.append(model)
     }
 
     func delete(id: UUID) async throws {
@@ -35,11 +35,11 @@ class TestUserRepository: UserRepository, TestRepository {
         users.count
     }
     
-    func find(id: UUID?) async throws -> (any DatabaseModelInterface)? {
+    func find(id: UUID?) async throws -> UserAccountModel? {
         users.first(where: { $0.id == id })
     }
     
-    func all() async throws -> [any DatabaseModelInterface] {
+    func all() async throws -> [UserAccountModel] {
         users
     }
     

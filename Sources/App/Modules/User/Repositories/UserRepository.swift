@@ -1,10 +1,13 @@
 import Entities
-import Vapor
 import Fluent
 import Framework
+import Vapor
 
 protocol UserRepository: Repository {
     func find(email: String) async throws -> UserAccountModel?
+    func create(_ model: UserAccountModel) async throws
+    func all() async throws -> [UserAccountModel]
+    func find(id: UUID?) async throws -> UserAccountModel?
     func set<Field>(
         _ field: KeyPath<UserAccountModel, Field>,
         to value: Field.Value,
@@ -33,7 +36,18 @@ struct DatabaseUserRepository: UserRepository, DatabaseRepository {
             .set(field, to: value)
             .update()
     }
-
+    
+    func all() async throws -> [UserAccountModel] {
+        try await UserAccountModel.query(on: database).all()
+    }
+    
+    func find(id: UUID?) async throws -> UserAccountModel? {
+        try await UserAccountModel.find(id, on: database)
+    }
+    
+    func create(_ model: UserAccountModel) async throws {
+        try await model.create(on: database)
+    }
 }
 
 extension Application.Repositories {
@@ -49,6 +63,3 @@ extension Application.Repositories {
         storage.makeUserRepository = make
     }
 }
-
-
-

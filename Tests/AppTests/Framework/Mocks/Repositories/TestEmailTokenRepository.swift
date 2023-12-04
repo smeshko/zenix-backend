@@ -23,16 +23,16 @@ class TestEmailTokenRepository: EmailTokenRepository, TestRepository {
         tokens.removeAll(where: { $0.$user.id == id })
     }
     
-    func create(_ model: some DatabaseModelInterface) async throws {
+    func create(_ model: EmailTokenModel) async throws {
         model.id = UUID()
-        tokens.append(model as! EmailTokenModel)
+        tokens.append(model)
     }
     
-    func all() async throws -> [any DatabaseModelInterface] {
+    func all() async throws -> [EmailTokenModel] {
         tokens
     }
     
-    func find(id: UUID?) async throws -> (any DatabaseModelInterface)? {
+    func find(id: UUID?) async throws -> EmailTokenModel? {
         tokens.first(where: { $0.id == id })
     }
     

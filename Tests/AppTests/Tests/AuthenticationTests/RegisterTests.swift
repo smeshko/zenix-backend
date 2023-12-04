@@ -42,7 +42,7 @@ final class RegisterTests: XCTestCase {
             }
 
 //            let emailToken = try await app.repositories.emailTokens.find(token: SHA256.hash("token"))
-//            XCTAssertEqual(emailToken?.$user.id, user.id)
+//            XCTAssertEqual(emailToken?.$user.email, data.email)
 //            XCTAssertNotNil(emailToken)
             
 //            let job = try XCTUnwrap(app.queues.test.first(EmailJob.self))

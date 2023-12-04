@@ -7,6 +7,7 @@ enum AuthenticationError: AppError {
     case refreshTokenOrUserNotFound
     case refreshTokenHasExpired
     case userNotFound
+    case userNotAuthorized
     case emailTokenHasExpired
     case emailTokenNotFound
     case emailIsNotVerified
@@ -30,6 +31,8 @@ extension AuthenticationError: AbortError {
             return .notFound
         case .userNotFound:
             return .notFound
+        case .userNotAuthorized:
+            return .unauthorized
         case .emailTokenNotFound:
             return .notFound
         case .refreshTokenHasExpired:
@@ -59,6 +62,8 @@ extension AuthenticationError: AbortError {
             return "Refresh token has expired"
         case .userNotFound:
             return "User was not found"
+        case .userNotAuthorized:
+            return "User is not authorized for the requested action"
         case .emailTokenNotFound:
             return "Email token not found"
         case .emailTokenHasExpired:
@@ -88,6 +93,8 @@ extension AuthenticationError: AbortError {
             return "refresh_token_has_expired"
         case .userNotFound:
             return "user_not_found"
+        case .userNotAuthorized:
+            return "user_not_authorized"
         case .emailTokenNotFound:
             return "email_token_not_found"
         case .emailTokenHasExpired:
