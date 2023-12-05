@@ -6,8 +6,23 @@ import Vapor
 protocol ContestRepository: Repository {
     func create(_ model: ContestModel) async throws
     func all() async throws -> [ContestModel]
-    func find(id: UUID?) async throws -> ContestModel?
-
+    func find(id: UUID) async throws -> ContestModel?
+    
+    func attach(
+        _ user: UserAccountModel,
+        to contest: ContestModel
+    ) async throws
+    
+    func attach(
+        _ user: UserAccountModel,
+        to contest: ContestModel,
+        update: @escaping (ContestParticipantModel) -> ()
+    ) async throws
+    
+    func detach(
+        _ user: UserAccountModel,
+        from contest: ContestModel
+    ) async throws
 }
 
 struct DatabaseContestRepository: ContestRepository, DatabaseRepository {
@@ -15,15 +30,42 @@ struct DatabaseContestRepository: ContestRepository, DatabaseRepository {
     let database: Database
     
     func all() async throws -> [ContestModel] {
-        try await ContestModel.query(on: database).all()
+        try await ContestModel
+            .query(on: database)
+            .with(\.$creator)
+            .with(\.$participants)
+            .all()
     }
     
-    func find(id: UUID?) async throws -> ContestModel? {
-        try await ContestModel.find(id, on: database)
+    func find(id: UUID) async throws -> ContestModel? {
+        try await ContestModel
+            .query(on: database)
+            .filter(\.$id == id)
+            .with(\.$creator)
+            .with(\.$participants)
+            .first()
     }
     
     func create(_ model: ContestModel) async throws {
         try await model.create(on: database)
+    }
+    
+    func attach(
+        _ user: UserAccountModel,
+        to contest: ContestModel,
+        update: @escaping (ContestParticipantModel) -> ()
+    ) async throws {
+        try await contest.$participants.attach(user, on: database) { pivot in
+            update(pivot)
+        }
+    }
+    
+    func attach(_ user: UserAccountModel, to contest: ContestModel) async throws {
+        try await attach(user, to: contest, update: { _ in })
+    }
+    
+    func detach(_ user: UserAccountModel, from contest: ContestModel) async throws {
+        try await contest.$participants.detach(user, on: database)
     }
 }
 

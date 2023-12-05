@@ -9,8 +9,7 @@ struct ContestController {
         let contest = try ContestModel(from: contestRequest, creatorID: user.requireID())
         
         try await req.contests.create(contest)
-        
-        try await contest.$participants.attach(user, on: req.db) { pivot in
+        try await req.contests.attach(user, to: contest) { pivot in
             pivot.role = .creator
         }
         
@@ -28,12 +27,11 @@ struct ContestController {
             throw ContestError.contestNotFound
         }
         
-        let creator = try await contest.$creator.get(on: req.db)
-        guard creator.id == user.id else {
+        guard contest.creator.id == user.id else {
             throw AuthenticationError.userNotAuthorized
         }
 
-        try await contest.delete(on: req.db)
+        try await req.contests.delete(id: contest.requireID())
         
         return .ok
     }
@@ -46,18 +44,17 @@ struct ContestController {
             throw ContestError.contestNotFound
         }
         
-        let participants = try await contest.$participants.get(on: req.db)
-        
-        guard !participants.contains(where: { $0.id == user.id }) else {
+        guard !contest.participants.contains(where: { $0.id == user.id }),
+              try contest.creator.requireID() != user.requireID() else {
             throw ContestError.userAlreadyParticipantInContest
         }
         
-        try await user.$contests.attach(contest, on: req.db) { pivot in
+        try await req.contests.attach(user, to: contest) { pivot in
             pivot.role = .participant
         }
         
-        let creator = try await User.Account.List.Response(from: contest.$creator.get(on: req.db))
-        let contestParticipants = try participants
+        let creator = try User.Account.List.Response(from: contest.creator)
+        let contestParticipants = try contest.participants
             .map(User.Account.List.Response.init(from:))
                 
         return try .init(
@@ -68,10 +65,10 @@ struct ContestController {
     }
     
     func list(_ req: Request) async throws -> [Contest.List.Response] {
-        try await req.contests.all().asyncMap {
+        try await req.contests.all().map {
             try Contest.List.Response(
                 from: $0,
-                participants: try await $0.$participants.get(on: req.db).count
+                participants: $0.participants.count
             )
         }
     }
@@ -84,17 +81,15 @@ struct ContestController {
             throw ContestError.contestNotFound
         }
         
-        let participants = try await contest.$participants.get(on: req.db)
-        let creator = try await contest.$creator.get(on: req.db)
-
-        guard participants.contains(where: { $0.id == user.id }) else {
+        guard contest.participants.contains(where: { $0.id == user.id }) else {
             throw ContestError.userNotInContest
         }
-        guard creator.id != user.id else {
+        
+        guard contest.creator.id != user.id else {
             throw ContestError.creatorCannotLeaveContest
         }
         
-        try await contest.$participants.detach(user, on: req.db)
+        try await req.contests.detach(user, from: contest)
         
         return .ok
     }

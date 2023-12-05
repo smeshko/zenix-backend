@@ -5,19 +5,22 @@ struct ContestRouter: RouteCollection {
     let controller = ContestController()
     
     func boot(routes: RoutesBuilder) throws {
-        let contestApi = routes
+        let contestAPI = routes
             .grouped("api")
             .grouped("contest")
+        
+        contestAPI.get("list", use: controller.list)
+
+        let protectedContestAPI = contestAPI
             .grouped(UserPayloadAuthenticator())
 
-        contestApi.post("create", use: controller.create)
-        contestApi.get("list", use: controller.list)
+        protectedContestAPI.post("create", use: controller.create)
 
-        let contestIdApi = contestApi
+        let contestIDAPI = protectedContestAPI
             .grouped(":contestID")
 
-        contestIdApi.post("join", use: controller.join)
-        contestIdApi.post("leave", use: controller.leave)
-        contestIdApi.delete("delete", use: controller.delete)
+        contestIDAPI.post("join", use: controller.join)
+        contestIDAPI.post("leave", use: controller.leave)
+        contestIDAPI.delete("delete", use: controller.delete)
     }
 }

@@ -42,5 +42,4 @@ class TestUserRepository: UserRepository, TestRepository {
     func all() async throws -> [UserAccountModel] {
         users
     }
-    
 }

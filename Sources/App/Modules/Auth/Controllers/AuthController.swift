@@ -86,12 +86,3 @@ struct AuthController {
         return .ok
     }
 }
-
-extension User.Account.Status {
-    var modelEnum: UserAccountModel.ChallengeStatus {
-        switch self {
-        case .notAccepting: .notAccepting
-        case .openForChallenge: .openForChallenge
-        }
-    }
-}

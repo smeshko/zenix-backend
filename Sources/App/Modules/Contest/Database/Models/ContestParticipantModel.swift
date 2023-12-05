@@ -31,9 +31,9 @@ final class ContestParticipantModel: Model {
         id: UUID? = nil,
         contest: ContestModel,
         user: UserAccountModel,
-        role: Role,
-        accountNumber: String?,
-        rank: Int
+        role: Role = .participant,
+        accountNumber: String? = nil,
+        rank: Int = 0
     ) throws {
         self.id = id
         self.$contest.id = try contest.requireID()
