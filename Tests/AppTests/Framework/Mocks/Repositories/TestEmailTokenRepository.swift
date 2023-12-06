@@ -1,7 +1,6 @@
 @testable import App
 import Vapor
 import Entities
-import Framework
 
 class TestEmailTokenRepository: EmailTokenRepository, TestRepository {
     typealias Model = EmailTokenModel

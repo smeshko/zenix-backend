@@ -1,6 +1,5 @@
 @testable import App
 import Vapor
-import Framework
 import Entities
 
 final class TestPasswordTokenRepository: PasswordTokenRepository, TestRepository {

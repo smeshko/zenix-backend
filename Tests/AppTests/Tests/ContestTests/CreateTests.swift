@@ -8,7 +8,9 @@ extension Contest.Create.Request: Content {}
 final class ContestCreateTests: XCTestCase {
     var app: Application!
     var user: UserAccountModel!
+    var user2: UserAccountModel!
     var contest: Contest.Create.Request!
+    var existingContest: ContestModel!
     var testWorld: TestWorld!
     let createPath = "api/contest/create"
     
@@ -17,12 +19,8 @@ final class ContestCreateTests: XCTestCase {
         try configure(app)
         testWorld = try TestWorld(app: app)
         
-        user = try UserAccountModel(
-            email: "test@test.com",
-            password: app.password.hash("password"),
-            fullName: "Test User",
-            isEmailVerified: true
-        )
+        user = try UserAccountModel(hash: app.password.hash("password"))
+        user2 = try UserAccountModel(hash: app.password.hash("password"))
 
         contest = Contest.Create.Request(
             name: "Test contest",
@@ -38,6 +36,8 @@ final class ContestCreateTests: XCTestCase {
             startDate: .now,
             minFund: 2000
         )
+        
+        existingContest = ContestModel(creator: user.id!)
     }
     
     override func tearDown() {
@@ -59,6 +59,41 @@ final class ContestCreateTests: XCTestCase {
                 )
                 XCTAssertTrue(sameDay)
             }
+        }
+    }
+    
+    func testCreate4thContestShouldFail() async throws {
+        try await app.repositories.users.create(user)
+                
+        existingContest.$creator.value = user
+        user.$contests.value = [existingContest, existingContest, existingContest]
+
+        try await app.test(.POST, createPath, user: user, content: contest) { response in
+            XCTAssertResponseError(response, ContestError.maxNumberOfContestsExceeded)
+        }
+    }
+    
+    func testCreate6thContestShouldFail() async throws {
+        try await app.repositories.users.create(user)
+        try await app.repositories.users.create(user2)
+        
+        existingContest.$creator.value = user2
+        existingContest.$participants.value = [user]
+        user.$contests.value = [existingContest, existingContest, existingContest, existingContest, existingContest]
+
+        try await app.test(.POST, createPath, user: user, content: contest) { response in
+            XCTAssertResponseError(response, ContestError.maxNumberOfContestsExceeded)
+        }
+    }
+    
+    func testCreateSchedulingConflictShouldFail() async throws {
+        try await app.repositories.users.create(user)
+        
+        existingContest.$creator.value = user
+        user.$contests.value = [existingContest]
+
+        try await app.test(.POST, createPath, user: user, content: contest) { response in
+            XCTAssertResponseError(response, ContestError.schedulingConflict)
         }
     }
 }

@@ -2,7 +2,6 @@
 import Vapor
 import Fluent
 import Entities
-import Framework
 
 class TestUserRepository: UserRepository, TestRepository {
     var users: [UserAccountModel]
@@ -15,6 +14,7 @@ class TestUserRepository: UserRepository, TestRepository {
     
     func create(_ model: UserAccountModel) async throws {
         model.id = UUID()
+        model.$contests.value = []
         users.append(model)
     }
 
@@ -47,5 +47,27 @@ class TestUserRepository: UserRepository, TestRepository {
         let index = users.firstIndex(where: { $0.id == model.id })!
         users.remove(at: index)
         users.insert(model, at: index)
+    }
+    
+    func attach(
+        _ contest: ContestModel,
+        to user: UserAccountModel,
+        update: @escaping (ContestParticipantModel) -> ()
+    ) async throws {
+        let pivot = try ContestParticipantModel(contest: contest, user: user)
+        update(pivot)
+        user.$contests.value?.append(contest)
+    }
+    
+    func attach(_ contest: ContestModel, to user: UserAccountModel) async throws {
+        try await attach(contest, to: user, update: { _ in })
+    }
+    
+    func detach(_ contest: ContestModel, from user: UserAccountModel) async throws {
+        user.$contests.value?.removeAll(where: { $0.id == contest.id })
+    }
+    
+    func contests(for user: UserAccountModel) async throws -> [ContestModel] {
+        users.first(where: { $0.id == user.id })!.contests
     }
 }

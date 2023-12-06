@@ -1,5 +1,4 @@
 import Vapor
-import Framework
 import Fluent
 
 protocol PasswordTokenRepository: Repository {

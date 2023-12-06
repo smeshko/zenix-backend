@@ -5,6 +5,9 @@ enum ContestError: AppError {
     case userAlreadyParticipantInContest
     case userNotInContest
     case creatorCannotLeaveContest
+    case enrollmentExpired
+    case maxNumberOfContestsExceeded
+    case schedulingConflict
 }
 
 extension ContestError: AbortError {
@@ -14,6 +17,9 @@ extension ContestError: AbortError {
         case .userAlreadyParticipantInContest: .badRequest
         case .userNotInContest: .badRequest
         case .creatorCannotLeaveContest: .badRequest
+        case .enrollmentExpired: .badRequest
+        case .maxNumberOfContestsExceeded: .badRequest
+        case .schedulingConflict: .badRequest
         }
     }
     
@@ -27,6 +33,12 @@ extension ContestError: AbortError {
             "User is not participating in the given contest"
         case .creatorCannotLeaveContest:
             "Contest creator cannot leave a contest. Try deleting it instead"
+        case .enrollmentExpired:
+            "The enrollment deadline for this contest has expired."
+        case .maxNumberOfContestsExceeded:
+            "Users can create up to 3 simultaneous contests"
+        case .schedulingConflict:
+            "Contest cannot start while another of user's contests is running"
         }
     }
     
@@ -40,6 +52,12 @@ extension ContestError: AbortError {
             "user_not_in_contest"
         case .creatorCannotLeaveContest:
             "creator_cannot_ceave_contest"
+        case .enrollmentExpired:
+            "enrollment_expired"
+        case .maxNumberOfContestsExceeded:
+            "max_number_of_contests_exceeded"
+        case .schedulingConflict:
+            "scheduling_conflict"
         }
     }
 }

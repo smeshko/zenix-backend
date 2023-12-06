@@ -1,7 +1,6 @@
 @testable import App
 import Entities
 import Fluent
-import Framework
 import Vapor
 
 class TestContestRepository: ContestRepository, TestRepository {

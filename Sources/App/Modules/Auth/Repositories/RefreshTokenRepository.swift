@@ -1,6 +1,5 @@
 import Vapor
 import Fluent
-import Framework
 import Entities
 
 protocol RefreshTokenRepository: Repository {

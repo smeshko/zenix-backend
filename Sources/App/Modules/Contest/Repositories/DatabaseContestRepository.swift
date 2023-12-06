@@ -1,6 +1,5 @@
 import Entities
 import Fluent
-import Framework
 import Vapor
 
 protocol ContestRepository: Repository {

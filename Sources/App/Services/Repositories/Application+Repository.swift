@@ -43,7 +43,7 @@ public extension Application {
             return app.storage[Key.self]!
         }
     }
-    
+
     var repositories: Repositories {
         .init(app: self)
     }

@@ -1,5 +1,4 @@
 import Fluent
-import Framework
 import Vapor
 
 final class UserTokenModel: DatabaseModelInterface {

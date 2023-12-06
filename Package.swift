@@ -13,8 +13,6 @@ let package = Package(
         .macOS(.v13)
     ],
     products: [
-        .library(name: "Framework", targets: ["Framework"]),
-        .library(name: "AmeritradeService", targets: ["AmeritradeService"]),
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.83.1"),
@@ -30,12 +28,10 @@ let package = Package(
         .package(url: "https://github.com/smeshko/zenix-common", from: "0.1.0"),
     ],
     targets: [
-        .target(name: "Framework", dependencies: [entities, vapor, fluent]),
-        .target(name: "AmeritradeService", dependencies: [common, entities, "Framework"]),
         .executableTarget(
             name: "App",
             dependencies: [
-                common, entities, "Framework", vapor, fluent, prometheus,
+                common, entities, vapor, fluent, prometheus,
                 .product(name: "QueuesRedisDriver", package: "queues-redis-driver"),
                 .product(name: "SwiftHtml", package: "swift-html"),
                 .product(name: "SwiftSvg", package: "swift-html"),

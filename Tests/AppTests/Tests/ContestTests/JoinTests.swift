@@ -18,13 +18,7 @@ final class ContestJoinTests: XCTestCase {
         try configure(app)
         testWorld = try TestWorld(app: app)
         
-        creator = try UserAccountModel(
-            id: UUID(),
-            email: "test@test.com",
-            password: app.password.hash("password"),
-            fullName: "Test User",
-            isEmailVerified: true
-        )
+        creator = try UserAccountModel(hash: app.password.hash("password"))
         
         participant = try UserAccountModel(
             email: "test2@test.com",
@@ -33,20 +27,7 @@ final class ContestJoinTests: XCTestCase {
             isEmailVerified: true
         )
         
-        contest = ContestModel(
-            creatorID: creator.id!,
-            name: "Test contest",
-            description: "Test contest description",
-            winCondition: .highScore,
-            visibility: .public,
-            minPlayers: 2,
-            maxPlayers: 10,
-            instruments: ["stock"],
-            markets: ["sp500"],
-            startDate: .now,
-            endDate: .now + 7.days,
-            minFund: 2000
-        )
+        contest = ContestModel(creator: creator.id!)
     }
     
     override func tearDown() {
@@ -61,7 +42,7 @@ final class ContestJoinTests: XCTestCase {
         
         try await app.test(.POST, joinPath(contest.id!), user: participant) { response in
             XCTAssertContent(Contest.Join.Response.self, response) { joinResponse in
-                XCTAssertEqual(joinResponse.participants.count, 1)
+                XCTAssertEqual(joinResponse.creator.id, creator.id!)
                 XCTAssertEqual(joinResponse.name, contest.name)
             }
         }
@@ -98,5 +79,43 @@ final class ContestJoinTests: XCTestCase {
         try await app.test(.POST, joinPath(contest.id!), user: creator) { response in
             XCTAssertResponseError(response, ContestError.userAlreadyParticipantInContest)
         }
+    }
+    
+    func testJoinSameDayAsStartDateShouldFail() async throws {
+        try await app.repositories.users.create(participant)
+        try await app.repositories.contests.create(contest)
+
+        contest.startDate = .now
+        try await app.test(.POST, joinPath(contest.id!), user: participant) { response in
+            XCTAssertResponseError(response, ContestError.enrollmentExpired)
+        }
+    }
+    
+    func testJoinDayBeforeStartDateAfterMarketClosedShouldFail() async throws {
+        try await app.repositories.users.create(participant)
+        try await app.repositories.contests.create(contest)
+        
+        app.dataClients.use { _ in .closed }
+        
+        try await app.test(.POST, joinPath(contest.id!), user: participant) { response in
+            XCTAssertResponseError(response, ContestError.enrollmentExpired)
+        }
+    }
+    
+    func testJoinActiveContestShouldFail() async throws {
+        try await app.repositories.users.create(participant)
+        try await app.repositories.contests.create(contest)
+        
+        contest.status = .running
+        
+        try await app.test(.POST, joinPath(contest.id!), user: participant) { response in
+            XCTAssertResponseError(response, ContestError.enrollmentExpired)
+        }
+    }
+}
+
+private extension MarketClient {
+    static var closed: MarketClient {
+        .init { .closedForTheDay }
     }
 }

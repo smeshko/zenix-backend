@@ -1,5 +1,4 @@
 import Vapor
-import Framework
 import Fluent
 
 private let emailTokenLifetime: Double = 15.minutes

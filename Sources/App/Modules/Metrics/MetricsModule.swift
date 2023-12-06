@@ -1,4 +1,3 @@
-import Framework
 import Vapor
 import Metrics
 import Prometheus

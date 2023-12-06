@@ -2,14 +2,18 @@ import Vapor
 import Fluent
 import Entities
 
+private let maximumSimultaneousContests = 3
+private let maximumSimultaneousParticipations = 5
+
 struct ContestController {
     func create(_ req: Request) async throws -> Contest.Create.Response {
         let user = try req.auth.require(UserAccountModel.self)
         let contestRequest = try req.content.decode(Contest.Create.Request.self)
         let contest = try ContestModel(from: contestRequest, creatorID: user.requireID())
         
+        try await user.canJoin(contest, for: req)
         try await req.contests.create(contest)
-        try await req.contests.attach(user, to: contest) { pivot in
+        try await req.users.attach(contest, to: user) { pivot in
             pivot.role = .creator
         }
         
@@ -20,7 +24,6 @@ struct ContestController {
     }
     
     func publish(_ req: Request) async throws -> Contest.Details.Response {
-        let user = try req.auth.require(UserAccountModel.self)
         let contestID = try req.parameters.require("contestID", as: UUID.self)
         
         guard let contest = try await req.contests.find(id: contestID) else {
@@ -66,12 +69,28 @@ struct ContestController {
             throw ContestError.contestNotFound
         }
         
+        guard contest.status == .ready else {
+            throw ContestError.enrollmentExpired
+        }
+        
+        guard !req.application.calendar.isDateInToday(contest.startDate) else {
+            throw ContestError.enrollmentExpired
+        }
+        
+        let status = try await req.clients.market.marketStatus()
+        if req.application.calendar.isDateInTomorrow(contest.startDate),
+           status == .closedForTheDay {
+            throw ContestError.enrollmentExpired
+        }
+        
+        try await user.canJoin(contest, for: req)
+
         guard !contest.participants.contains(where: { $0.id == user.id }),
               try contest.creator.requireID() != user.requireID() else {
             throw ContestError.userAlreadyParticipantInContest
         }
         
-        try await req.contests.attach(user, to: contest) { pivot in
+        try await req.users.attach(contest, to: user) { pivot in
             pivot.role = .participant
         }
         
@@ -114,5 +133,27 @@ struct ContestController {
         try await req.contests.detach(user, from: contest)
         
         return .ok
+    }
+}
+
+private extension UserAccountModel {
+    @discardableResult
+    func canJoin(_ contest: ContestModel, for req: Request) async throws -> Bool {
+        let userContests = try await req.users.contests(for: self)
+        let own = userContests.filter { $0.creator.id == id }
+
+        guard own.count < maximumSimultaneousContests,
+              userContests.count < maximumSimultaneousParticipations else {
+            throw ContestError.maxNumberOfContestsExceeded
+        }
+        
+        for userContest in userContests {
+            if contest.startDate.isBetween(userContest.startDate, and: userContest.endDate) ||
+                contest.endDate.isBetween(userContest.startDate, and: userContest.endDate) {
+                throw ContestError.schedulingConflict
+            }
+        }
+
+        return true
     }
 }

@@ -1,5 +1,4 @@
 import Vapor
-import Framework
 import FluentPostgresDriver
 import JWT
 import Queues

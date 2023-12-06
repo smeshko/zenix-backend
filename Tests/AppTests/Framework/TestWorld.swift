@@ -2,7 +2,6 @@
 import Fluent
 import FluentSQLiteDriver
 import XCTVapor
-import XCTQueues
 
 class TestWorld {
     let app: Application
@@ -36,9 +35,13 @@ class TestWorld {
         app.repositories.use { _ in self.emailTokenRepository }
         app.repositories.use { _ in self.passwordTokenRepository }
         app.repositories.use { _ in self.contestRepository }
-
-        app.queues.use(.test)
+        
+        app.dataClients.use { _ in .test }
     }
 }
 
-
+extension MarketClient {
+    static var test: MarketClient {
+        .init { .open }
+    }
+}

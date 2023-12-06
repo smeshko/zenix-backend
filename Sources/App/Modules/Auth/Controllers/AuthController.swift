@@ -1,4 +1,3 @@
-import Framework
 import Entities
 import Vapor
 import Fluent
@@ -26,7 +25,7 @@ struct AuthController {
 
         let hash = try await req.password.async.hash(registerRequest.password)
         let user = UserAccountModel(
-            email: registerRequest.email,
+            email: registerRequest.email.lowercased(),
             password: hash,
             fullName: registerRequest.fullName
         )

@@ -16,14 +16,8 @@ final class ContestListTests: XCTestCase {
         try configure(app)
         testWorld = try TestWorld(app: app)
         
-        creator = try UserAccountModel(
-            id: UUID(),
-            email: "test@test.com",
-            password: app.password.hash("password"),
-            fullName: "Test User",
-            isEmailVerified: true
-        )
-        
+        creator = try UserAccountModel(hash: app.password.hash("password"))
+
         participant = try UserAccountModel(
             email: "test2@test.com",
             password: app.password.hash("password"),
@@ -31,20 +25,7 @@ final class ContestListTests: XCTestCase {
             isEmailVerified: true
         )
 
-        contest = ContestModel(
-            creatorID: creator.id!,
-            name: "Test contest",
-            description: "Test contest description",
-            winCondition: .highScore,
-            visibility: .public,
-            minPlayers: 2,
-            maxPlayers: 10,
-            instruments: ["stock"],
-            markets: ["sp500"],
-            startDate: .now,
-            endDate: .now + 7.days,
-            minFund: 2000
-        )
+        contest = ContestModel(creator: creator.id!)
     }
     
     override func tearDown() {
