@@ -21,7 +21,8 @@ struct FrontendController {
             )))
         }
         
-        try await req.users.set(\.$isEmailVerified, to: true, for: token.$user.id)
+        token.user.isEmailVerified = true
+        try await req.users.update(token.user)
 
         return req.templates.renderHtml(OutcomeMessageTemplate(.init(
             text: "Email successfully verified!"
@@ -66,7 +67,8 @@ struct FrontendController {
         
         try await req.passwordTokens.delete(id: token.requireID())
         let hash = try await req.password.async.hash(input.password)
-        try await req.users.set(\.$password, to: hash, for: token.$user.id)
+        token.user.password = hash
+        try await req.users.update(token.user)
 
         return req.templates.renderHtml(OutcomeMessageTemplate(.init(
             text: "Password successfully changed!"

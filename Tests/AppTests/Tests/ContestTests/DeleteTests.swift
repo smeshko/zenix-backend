@@ -43,7 +43,6 @@ final class ContestDeleteTests: XCTestCase {
             maxPlayers: 10,
             instruments: ["stock"],
             markets: ["sp500"],
-            duration: 7.days,
             startDate: .now,
             endDate: .now + 7.days,
             minFund: 2000

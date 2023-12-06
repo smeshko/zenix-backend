@@ -20,4 +20,24 @@ struct UserController {
             try User.Account.List.Response(from: model)
         }
     }
+    
+    func patch(_ req: Request) async throws -> User.Account.Patch.Response {
+        let request = try req.content.decode(User.Account.Patch.Request.self)
+        let user = try req.auth.require(UserAccountModel.self)
+        
+        if let email = request.email {
+            user.email = email
+        }
+        
+        if let name = request.fullName {
+            user.fullName = name
+        }
+        
+        if let status = request.status {
+            user.challengeStatus = status.db
+        }
+        
+        try await req.users.update(user)
+        return try .init(from: user)
+    }
 }

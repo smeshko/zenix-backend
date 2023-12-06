@@ -43,7 +43,6 @@ final class ContestJoinTests: XCTestCase {
             maxPlayers: 10,
             instruments: ["stock"],
             markets: ["sp500"],
-            duration: 7.days,
             startDate: .now,
             endDate: .now + 7.days,
             minFund: 2000
@@ -64,8 +63,6 @@ final class ContestJoinTests: XCTestCase {
             XCTAssertContent(Contest.Join.Response.self, response) { joinResponse in
                 XCTAssertEqual(joinResponse.participants.count, 1)
                 XCTAssertEqual(joinResponse.name, contest.name)
-                XCTAssertEqual(joinResponse.creator.email, creator.email)
-                XCTAssertEqual(joinResponse.participants.last?.email, participant.email)
             }
         }
     }

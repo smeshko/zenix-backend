@@ -9,7 +9,7 @@ protocol EmailTokenRepository: Repository {
     func delete(forUserID id: UUID) async throws
     func create(_ model: EmailTokenModel) async throws
     func all() async throws -> [EmailTokenModel]
-    func find(id: UUID?) async throws -> EmailTokenModel?
+    func find(id: UUID) async throws -> EmailTokenModel?
 
 }
 
@@ -21,12 +21,14 @@ struct DatabaseEmailTokenRepository: EmailTokenRepository, DatabaseRepository {
     func find(forUserID id: UUID) async throws -> EmailTokenModel? {
         try await EmailTokenModel.query(on: database)
             .filter(\.$user.$id == id)
+            .with(\.$user)
             .first()
     }
     
     func find(token: String) async throws -> EmailTokenModel? {
         try await EmailTokenModel.query(on: database)
             .filter(\.$value == token)
+            .with(\.$user)
             .first()
     }
     
@@ -37,11 +39,19 @@ struct DatabaseEmailTokenRepository: EmailTokenRepository, DatabaseRepository {
     }
     
     func all() async throws -> [EmailTokenModel] {
-        try await EmailTokenModel.query(on: database).all()
+        try await EmailTokenModel
+            .query(on: database)
+            .with(\.$user)
+            .all()
     }
     
-    func find(id: UUID?) async throws -> EmailTokenModel? {
-        try await EmailTokenModel.find(id, on: database)
+    func find(id: UUID) async throws -> EmailTokenModel? {
+        try await EmailTokenModel
+            .query(on: database)
+            .filter(\.$id == id)
+            .with(\.$user)
+            .first()
+
     }
     
     func create(_ model: EmailTokenModel) async throws {

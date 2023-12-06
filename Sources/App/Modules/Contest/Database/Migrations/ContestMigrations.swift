@@ -31,7 +31,6 @@ enum ContestMigrations {
                 .field(ContestModel.FieldKeys.v1.minUserLevel, .int, .required)
                 .field(ContestModel.FieldKeys.v1.instruments, .array(of: .string), .required)
                 .field(ContestModel.FieldKeys.v1.markets, .array(of: .string), .required)
-                .field(ContestModel.FieldKeys.v1.duration, .double, .required)
                 .field(ContestModel.FieldKeys.v1.startDate, .datetime, .required)
                 .field(ContestModel.FieldKeys.v1.endDate, .datetime, .required)
                 .field(ContestModel.FieldKeys.v1.marginAllowed, .bool, .required)
@@ -72,6 +71,7 @@ enum ContestMigrations {
     struct v2: AsyncMigration {
         func prepare(on database: Database) async throws {
             let status = try await database.enum(ContestModel.Status.schema)
+                .case(ContestModel.Status.draft.rawValue)
                 .case(ContestModel.Status.ready.rawValue)
                 .case(ContestModel.Status.running.rawValue)
                 .case(ContestModel.Status.archived.rawValue)

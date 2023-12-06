@@ -8,11 +8,7 @@ protocol UserRepository: Repository {
     func create(_ model: UserAccountModel) async throws
     func all() async throws -> [UserAccountModel]
     func find(id: UUID?) async throws -> UserAccountModel?
-    func set<Field>(
-        _ field: KeyPath<UserAccountModel, Field>,
-        to value: Field.Value,
-        for modelID: UUID
-    ) async throws where Field : QueryableProperty, Field.Model == UserAccountModel
+    func update(_ model: UserAccountModel) async throws
 }
 
 struct DatabaseUserRepository: UserRepository, DatabaseRepository {
@@ -26,17 +22,6 @@ struct DatabaseUserRepository: UserRepository, DatabaseRepository {
             .first()
     }
     
-    func set<Field>(
-        _ field: KeyPath<UserAccountModel, Field>,
-        to value: Field.Value,
-        for modelID: UUID
-    ) async throws where Field : QueryableProperty, Field.Model == UserAccountModel {
-        try await UserAccountModel.query(on: database)
-            .filter(\.$id == modelID)
-            .set(field, to: value)
-            .update()
-    }
-    
     func all() async throws -> [UserAccountModel] {
         try await UserAccountModel.query(on: database).all()
     }
@@ -47,6 +32,10 @@ struct DatabaseUserRepository: UserRepository, DatabaseRepository {
     
     func create(_ model: UserAccountModel) async throws {
         try await model.create(on: database)
+    }
+    
+    func update(_ model: UserAccountModel) async throws {
+        try await model.update(on: database)
     }
 }
 

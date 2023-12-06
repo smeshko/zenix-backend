@@ -42,4 +42,10 @@ class TestUserRepository: UserRepository, TestRepository {
     func all() async throws -> [UserAccountModel] {
         users
     }
+    
+    func update(_ model: UserAccountModel) async throws {
+        let index = users.firstIndex(where: { $0.id == model.id })!
+        users.remove(at: index)
+        users.insert(model, at: index)
+    }
 }

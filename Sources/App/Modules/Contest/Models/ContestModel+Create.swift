@@ -18,7 +18,6 @@ extension ContestModel {
             maxPlayers: content.maxPlayers,
             instruments: content.instruments.map(\.rawValue),
             markets: content.markets.map(\.rawValue),
-            duration: content.duration.time,
             startDate: content.startDate,
             endDate: content.startDate + content.duration.time,
             minFund: content.minFund

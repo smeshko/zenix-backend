@@ -58,7 +58,6 @@ final class ContestCreateTests: XCTestCase {
                     toGranularity: .day
                 )
                 XCTAssertTrue(sameDay)
-                XCTAssertEqual(contestResponse.creator.email, user.email)
             }
         }
     }

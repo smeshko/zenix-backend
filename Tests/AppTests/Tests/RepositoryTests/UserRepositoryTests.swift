@@ -4,7 +4,7 @@ import XCTVapor
 
 final class UserRepositoryTests: XCTestCase {
     var app: Application!
-    var repository: (any UserRepository)!
+    var repository: DatabaseUserRepository!
     
     override func setUpWithError() throws {
         app = Application(.testing)
@@ -61,8 +61,8 @@ final class UserRepositoryTests: XCTestCase {
     func testSetFieldValue() async throws {
         let user = UserAccountModel(email: "test@test.com", password: "123", fullName: "Test User", isEmailVerified: false)
         try await user.create(on: app.db)
-        
-        try await repository.set(\.$isEmailVerified, to: true, for: user.requireID())
+        user.isEmailVerified = true
+        try await repository.update(user)
         
         let updatedUser = try await UserAccountModel.find(user.id!, on: app.db)
         XCTAssertEqual(updatedUser!.isEmailVerified, true)

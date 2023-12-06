@@ -35,3 +35,14 @@ extension ContestModel.Visibility {
         }
     }
 }
+
+extension ContestModel.Status {
+    var local: Contest.Status {
+        switch self {
+        case .draft: .draft
+        case .ready: .ready
+        case .running: .running
+        case .archived: .archived
+        }
+    }
+}

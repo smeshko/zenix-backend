@@ -6,6 +6,7 @@ import Vapor
 
 class TestContestRepository: ContestRepository, TestRepository {
     var contests: [ContestModel]
+    var current: ContestModel?
     
     init(contests: [ContestModel] = []) {
         self.contests = contests
@@ -52,5 +53,11 @@ class TestContestRepository: ContestRepository, TestRepository {
     
     func detach(_ user: UserAccountModel, from contest: ContestModel) async throws {
         contest.$participants.value?.removeAll(where: { $0.id == user.id })
+    }
+    
+    func update(_ model: ContestModel) async throws {
+        let index = contests.firstIndex(where: { $0.id == model.id })!
+        contests.remove(at: index)
+        contests.insert(model, at: index)
     }
 }

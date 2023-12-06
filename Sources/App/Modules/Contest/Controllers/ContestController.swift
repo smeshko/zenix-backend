@@ -18,6 +18,28 @@ struct ContestController {
             creator: .init(from: user)
         )
     }
+    
+    func publish(_ req: Request) async throws -> Contest.Details.Response {
+        let user = try req.auth.require(UserAccountModel.self)
+        let contestID = try req.parameters.require("contestID", as: UUID.self)
+        
+        guard let contest = try await req.contests.find(id: contestID) else {
+            throw ContestError.contestNotFound
+        }
+        
+        contest.status = .ready
+        try await req.contests.update(contest)
+        
+        let creator = try User.Account.List.Response(from: contest.creator)
+        let contestParticipants = try contest.participants
+            .map(User.Account.List.Response.init(from:))
+                
+        return try .init(
+            from: contest,
+            creator: creator,
+            participants: contestParticipants
+        )
+    }
 
     func delete(_ req: Request) async throws -> HTTPStatus {
         let user = try req.auth.require(UserAccountModel.self)

@@ -32,7 +32,7 @@ class TestEmailTokenRepository: EmailTokenRepository, TestRepository {
         tokens
     }
     
-    func find(id: UUID?) async throws -> EmailTokenModel? {
+    func find(id: UUID) async throws -> EmailTokenModel? {
         tokens.first(where: { $0.id == id })
     }
     

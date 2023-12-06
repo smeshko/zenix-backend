@@ -23,12 +23,15 @@ protocol ContestRepository: Repository {
         _ user: UserAccountModel,
         from contest: ContestModel
     ) async throws
+    
+    func update(_ model: ContestModel) async throws
 }
 
 struct DatabaseContestRepository: ContestRepository, DatabaseRepository {
-    typealias Model = ContestModel
-    let database: Database
     
+    typealias Model = ContestModel
+    let database: Database    
+
     func all() async throws -> [ContestModel] {
         try await ContestModel
             .query(on: database)
@@ -66,6 +69,10 @@ struct DatabaseContestRepository: ContestRepository, DatabaseRepository {
     
     func detach(_ user: UserAccountModel, from contest: ContestModel) async throws {
         try await contest.$participants.detach(user, on: database)
+    }
+    
+    func update(_ model: ContestModel) async throws {
+        try await model.update(on: database)
     }
 }
 

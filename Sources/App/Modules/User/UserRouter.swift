@@ -8,17 +8,15 @@ struct UserRouter: RouteCollection {
         let api = routes
             .grouped("api")
             .grouped("user")
-                
-        api
-            .grouped(UserPayloadAuthenticator())
-            .delete("delete", use: controller.delete)
         
-        api
+        let protectedAPI = api
             .grouped(UserPayloadAuthenticator())
-            .get("me", use: controller.getCurrentUser)
+        
+        protectedAPI.delete("delete", use: controller.delete)
+        protectedAPI.get("me", use: controller.getCurrentUser)
+        protectedAPI.patch("update", use: controller.patch)
 
-        api
-            .grouped(UserPayloadAuthenticator())
+        protectedAPI
             .grouped(EnsureAdminUserMiddleware())
             .get("list", use: controller.list)
     }

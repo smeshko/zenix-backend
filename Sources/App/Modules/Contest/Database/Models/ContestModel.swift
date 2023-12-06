@@ -1,6 +1,6 @@
+import Fluent
 import Framework
 import Vapor
-import Fluent
 
 final class ContestModel: DatabaseModelInterface {
     typealias Module = ContestModule
@@ -46,9 +46,6 @@ final class ContestModel: DatabaseModelInterface {
     @Field(key: FieldKeys.v1.markets)
     var markets: [String]
     
-    @Field(key: FieldKeys.v1.duration)
-    var duration: TimeInterval
-    
     @Field(key: FieldKeys.v1.startDate)
     var startDate: Date
     
@@ -82,12 +79,12 @@ final class ContestModel: DatabaseModelInterface {
         minUserLevel: Int = 0,
         instruments: [String],
         markets: [String],
-        duration: TimeInterval,
         startDate: Date,
         endDate: Date,
         marginAllowed: Bool = true,
         minFund: Double,
-        tradesLimit: Int = 0
+        tradesLimit: Int = 0,
+        status: Status = .draft
     ) {
         self.id = id
         self.$creator.id = creatorID
@@ -101,12 +98,12 @@ final class ContestModel: DatabaseModelInterface {
         self.minUserLevel = minUserLevel
         self.instruments = instruments
         self.markets = markets
-        self.duration = duration
         self.startDate = startDate
         self.endDate = endDate
         self.marginAllowed = marginAllowed
         self.minFund = minFund
         self.tradesLimit = tradesLimit
+        self.status = status
     }
 }
 
@@ -131,7 +128,7 @@ extension ContestModel {
     }
     
     enum Status: String, Codable {
-        case ready, running, archived
+        case draft, ready, running, archived
         
         static var schema: String {
             "contest_status_enum"
