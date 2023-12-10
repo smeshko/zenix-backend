@@ -14,7 +14,7 @@ struct AuthController {
         try await req.refreshTokens.create(refreshToken)
 
         return User.Auth.Login.Response(
-            token: try .init(from: refreshToken, user: user, on: req),
+            token: try .init(token: token, user: user, on: req),
             user: try .init(from: user)
         )
     }
@@ -43,7 +43,7 @@ struct AuthController {
         try await req.emailVerifier.verify(for: user)
         
         return User.Auth.Create.Response(
-            token: try .init(from: refreshToken, user: user, on: req),
+            token: try .init(token: token, user: user, on: req),
             user: try .init(from: user)
         )
     }
