@@ -50,7 +50,6 @@ struct DatabaseEmailTokenRepository: EmailTokenRepository, DatabaseRepository {
             .filter(\.$id == id)
             .with(\.$user)
             .first()
-
     }
     
     func create(_ model: EmailTokenModel) async throws {

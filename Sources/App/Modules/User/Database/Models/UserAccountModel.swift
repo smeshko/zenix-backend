@@ -16,6 +16,9 @@ final class UserAccountModel: DatabaseModelInterface, Authenticatable {
     @Field(key: FieldKeys.v1.fullName)
     var fullName: String
     
+    @Children(for: \.$user)
+    var accounts: [TradingAccountModel]
+    
     @Field(key: FieldKeys.v1.isAdmin)
     var isAdmin: Bool
     

@@ -6,4 +6,6 @@ extension Request {
     var emailTokens: any EmailTokenRepository { application.repositories.emailTokens.for(self) }
     var passwordTokens: any PasswordTokenRepository { application.repositories.passwordTokens.for(self) }
     var contests: any ContestRepository { application.repositories.contests.for(self) }
+    var tradingAccounts: any TradingAccountRepository { application.repositories.tradingAccounts.for(self) }
+    var contestParticipants: any ContestParticipantsRepository { application.repositories.contestParticipantss.for(self) }
 }

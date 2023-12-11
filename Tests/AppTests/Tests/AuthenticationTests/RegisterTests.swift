@@ -40,15 +40,6 @@ final class RegisterTests: XCTestCase {
                 XCTAssert(!signup.token.refreshToken.isEmpty)
                 XCTAssert(!signup.token.accessToken.isEmpty)
             }
-
-//            let emailToken = try await app.repositories.emailTokens.find(token: SHA256.hash("token"))
-//            XCTAssertEqual(emailToken?.$user.email, data.email)
-//            XCTAssertNotNil(emailToken)
-            
-//            let job = try XCTUnwrap(app.queues.test.first(EmailJob.self))
-//            XCTAssertEqual(job.recipient, "test@test.com")
-//            XCTAssertEqual(job.email.templateName, "email_verification")
-//            XCTAssertEqual(job.email.templateData["verify_url"], "http://api.local/auth/email-verification?token=token")
         })
     }
     

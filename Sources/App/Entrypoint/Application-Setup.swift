@@ -1,8 +1,7 @@
-import Vapor
 import FluentPostgresDriver
+import FluentSQLiteDriver
 import JWT
-import Queues
-import QueuesRedisDriver
+import Vapor
 
 private extension String {
     var bytes: [UInt8] { .init(self.utf8) }
@@ -26,6 +25,7 @@ extension Application {
             RootModule(),
             UserModule(),
             AuthModule(),
+            TradingAccountModule(),
             ContestModule(),
             FrontendModule()
         ]
@@ -44,7 +44,11 @@ extension Application {
     }
 
     func setupDB() throws {
-        try databases.use(.postgres(url: Environment.databaseURL), as: .psql)
+//        if environment == .testing {
+//            databases.use(.sqlite(.memory), as: .sqlite)
+//        } else {
+            try databases.use(.postgres(url: Environment.databaseURL), as: .psql)
+//        }
     }
 
     func setupJWT() throws {

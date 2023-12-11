@@ -47,11 +47,11 @@ enum ContestMigrations {
                 .id()
                 .field(
                     ContestParticipantModel.FieldKeys.v1.userId, .uuid, .required,
-                    .references(UserAccountModel.schema, "id", onDelete: .cascade)
+                    .references(UserAccountModel.schema, .id, onDelete: .cascade)
                 )
                 .field(
                     ContestParticipantModel.FieldKeys.v1.contestId, .uuid, .required,
-                    .references(ContestModel.schema, "id", onDelete: .cascade)
+                    .references(ContestModel.schema, .id, onDelete: .cascade)
                 )
                 .field(ContestParticipantModel.FieldKeys.v1.role, role, .required)
                 .field(ContestParticipantModel.FieldKeys.v1.createdAt, .datetime, .required)
@@ -86,7 +86,11 @@ enum ContestMigrations {
                 .update()
 
             try await database.schema(ContestParticipantModel.schema)
-                .field(ContestParticipantModel.FieldKeys.v2.accountNumber, .string)
+                .field(ContestParticipantModel.FieldKeys.v2.tradingAccountId, .uuid)
+                .foreignKey(
+                    ContestParticipantModel.FieldKeys.v2.tradingAccountId,
+                    references: TradingAccountModel.schema, .id
+                )
                 .field(ContestParticipantModel.FieldKeys.v2.rank, .int16, .required, .sql(.default(0)))
                 .update()
         }
@@ -102,7 +106,7 @@ enum ContestMigrations {
                 .update()
             
             try await database.schema(ContestParticipantModel.schema)
-                .deleteField(ContestParticipantModel.FieldKeys.v2.accountNumber)
+                .deleteField(ContestParticipantModel.FieldKeys.v2.tradingAccountId)
                 .deleteField(ContestParticipantModel.FieldKeys.v2.rank)
                 .update()
         }

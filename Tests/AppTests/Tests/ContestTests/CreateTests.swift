@@ -9,6 +9,7 @@ final class ContestCreateTests: XCTestCase {
     var app: Application!
     var user: UserAccountModel!
     var user2: UserAccountModel!
+    var account: TradingAccountModel!
     var contest: Contest.Create.Request!
     var existingContest: ContestModel!
     var testWorld: TestWorld!
@@ -21,6 +22,8 @@ final class ContestCreateTests: XCTestCase {
         
         user = try UserAccountModel(hash: app.password.hash("password"))
         user2 = try UserAccountModel(hash: app.password.hash("password"))
+        account = try TradingAccountModel(id: UUID(), user: user)
+        account.$user.value = user
 
         contest = Contest.Create.Request(
             name: "Test contest",
@@ -34,7 +37,8 @@ final class ContestCreateTests: XCTestCase {
             markets: [.nasdaq, .sp500],
             duration: .week,
             startDate: .now,
-            minFund: 2000
+            minFund: 2000,
+            tradingAccountId: account.id!
         )
         
         existingContest = ContestModel(creator: user.id!)
@@ -46,6 +50,7 @@ final class ContestCreateTests: XCTestCase {
     
     func testCreateHappyPath() async throws {
         try await app.repositories.users.create(user)
+        try await app.repositories.tradingAccounts.create(account)
         
         try await app.test(.POST, createPath, user: user, content: contest) { response in
             XCTAssertContent(Contest.Create.Response.self, response) { contestResponse in
@@ -64,9 +69,10 @@ final class ContestCreateTests: XCTestCase {
     
     func testCreate4thContestShouldFail() async throws {
         try await app.repositories.users.create(user)
-                
-        existingContest.$creator.value = user
-        user.$contests.value = [existingContest, existingContest, existingContest]
+        try await app.repositories.tradingAccounts.create(account)
+        try await app.repositories.contests.create(existingContest)
+        
+        try await attachContests(3, to: user)
 
         try await app.test(.POST, createPath, user: user, content: contest) { response in
             XCTAssertResponseError(response, ContestError.maxNumberOfContestsExceeded)
@@ -76,10 +82,10 @@ final class ContestCreateTests: XCTestCase {
     func testCreate6thContestShouldFail() async throws {
         try await app.repositories.users.create(user)
         try await app.repositories.users.create(user2)
-        
-        existingContest.$creator.value = user2
-        existingContest.$participants.value = [user]
-        user.$contests.value = [existingContest, existingContest, existingContest, existingContest, existingContest]
+        try await app.repositories.tradingAccounts.create(account)
+        try await app.repositories.contests.create(existingContest)
+
+        try await attachContests(5, to: user, as: .participant)
 
         try await app.test(.POST, createPath, user: user, content: contest) { response in
             XCTAssertResponseError(response, ContestError.maxNumberOfContestsExceeded)
@@ -88,12 +94,28 @@ final class ContestCreateTests: XCTestCase {
     
     func testCreateSchedulingConflictShouldFail() async throws {
         try await app.repositories.users.create(user)
-        
-        existingContest.$creator.value = user
-        user.$contests.value = [existingContest]
+        try await app.repositories.tradingAccounts.create(account)
+        try await app.repositories.contests.create(existingContest)
+
+        try await attachContests(1, to: user)
 
         try await app.test(.POST, createPath, user: user, content: contest) { response in
             XCTAssertResponseError(response, ContestError.schedulingConflict)
+        }
+    }
+}
+
+private extension ContestCreateTests {
+    func attachContests(
+        _ count: Int,
+        to user: UserAccountModel,
+        as role: ContestParticipantModel.Role = .creator
+    ) async throws {
+        for _ in 0..<count {
+            try await app.repositories.contestParticipantss.attach(user, to: existingContest) { pivot in
+                pivot.$tradingAccount.value = self.account
+                pivot.role = role
+            }
         }
     }
 }

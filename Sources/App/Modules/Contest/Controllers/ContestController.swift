@@ -11,10 +11,20 @@ struct ContestController {
         let contestRequest = try req.content.decode(Contest.Create.Request.self)
         let contest = try ContestModel(from: contestRequest, creatorID: user.requireID())
         
-        try await user.canJoin(contest, for: req)
+        guard let account = try await req.tradingAccounts.find(id: contestRequest.tradingAccountId) else {
+            throw ContestError.tradingAccountDoesntExist
+        }
+        
+        guard try account.user.requireID() == user.requireID() else {
+            throw ContestError.tradingAccountIncorrect
+        }
+        
+        try await account.canParticipate(in: contest, for: req)
         try await req.contests.create(contest)
-        try await req.users.attach(contest, to: user) { pivot in
+
+        try await req.contestParticipants.attach(user, to: contest) { pivot in
             pivot.role = .creator
+            pivot.$tradingAccount.id = try account.requireID()
         }
         
         return try .init(
@@ -63,7 +73,12 @@ struct ContestController {
 
     func join(_ req: Request) async throws -> Contest.Join.Response {
         let user = try req.auth.require(UserAccountModel.self)
+        let joinRequest = try req.content.decode(Contest.Join.Request.self)
         let contestID = try req.parameters.require("contestID", as: UUID.self)
+        
+        guard let account = try await req.tradingAccounts.find(id: joinRequest.tradingAccountId) else {
+            throw ContestError.tradingAccountDoesntExist
+        }
 
         guard let contest = try await req.contests.find(id: contestID) else {
             throw ContestError.contestNotFound
@@ -83,14 +98,14 @@ struct ContestController {
             throw ContestError.enrollmentExpired
         }
         
-        try await user.canJoin(contest, for: req)
+        try await account.canParticipate(in: contest, for: req)
 
         guard !contest.participants.contains(where: { $0.id == user.id }),
               try contest.creator.requireID() != user.requireID() else {
             throw ContestError.userAlreadyParticipantInContest
         }
         
-        try await req.users.attach(contest, to: user) { pivot in
+        try await req.contestParticipants.attach(user, to: contest) { pivot in
             pivot.role = .participant
         }
         
@@ -122,34 +137,38 @@ struct ContestController {
             throw ContestError.contestNotFound
         }
         
+        guard contest.creator.id != user.id else {
+            throw ContestError.creatorCannotLeaveContest
+        }
+
         guard contest.participants.contains(where: { $0.id == user.id }) else {
             throw ContestError.userNotInContest
         }
         
-        guard contest.creator.id != user.id else {
-            throw ContestError.creatorCannotLeaveContest
-        }
-        
-        try await req.contests.detach(user, from: contest)
+        try await req.contestParticipants.detach(user, from: contest)
         
         return .ok
     }
 }
 
-private extension UserAccountModel {
+private extension TradingAccountModel {
     @discardableResult
-    func canJoin(_ contest: ContestModel, for req: Request) async throws -> Bool {
-        let userContests = try await req.users.contests(for: self)
-        let own = userContests.filter { $0.creator.id == id }
-
-        guard own.count < maximumSimultaneousContests,
-              userContests.count < maximumSimultaneousParticipations else {
+    func canParticipate(in contest: ContestModel, for req: Request) async throws -> Bool {
+        let user = try req.auth.require(UserAccountModel.self)
+        let accountContests = try await req.contestParticipants.contests(for: user)
+            .filter { ![ContestModel.Status.archived, .draft].contains($0.contest.status) }
+            .filter { $0.tradingAccount?.id == id }
+        
+        let ownContests = accountContests.filter { $0.role == .creator }
+        
+        guard ownContests.count < maximumSimultaneousContests,
+              accountContests.count < maximumSimultaneousParticipations else {
             throw ContestError.maxNumberOfContestsExceeded
         }
         
-        for userContest in userContests {
-            if contest.startDate.isBetween(userContest.startDate, and: userContest.endDate) ||
-                contest.endDate.isBetween(userContest.startDate, and: userContest.endDate) {
+        for account in accountContests {
+            if contest.startDate.isBetween(account.contest.startDate, and: account.contest.endDate) ||
+                contest.endDate.isBetween(account.contest.startDate, and: account.contest.endDate) {
                 throw ContestError.schedulingConflict
             }
         }

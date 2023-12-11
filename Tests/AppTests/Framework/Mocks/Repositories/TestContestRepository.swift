@@ -5,7 +5,6 @@ import Vapor
 
 class TestContestRepository: ContestRepository, TestRepository {
     var contests: [ContestModel]
-    var current: ContestModel?
     
     init(contests: [ContestModel] = []) {
         self.contests = contests
@@ -34,24 +33,6 @@ class TestContestRepository: ContestRepository, TestRepository {
     
     func all() async throws -> [ContestModel] {
         contests
-    }
-    
-    func attach(
-        _ user: UserAccountModel,
-        to contest: ContestModel,
-        update: @escaping (ContestParticipantModel) -> ()
-    ) async throws {
-        let pivot = try ContestParticipantModel(contest: contest, user: user)
-        update(pivot)
-        contest.$participants.value?.append(user)
-    }
-    
-    func attach(_ user: UserAccountModel, to contest: ContestModel) async throws {
-        try await attach(user, to: contest, update: { _ in })
-    }
-    
-    func detach(_ user: UserAccountModel, from contest: ContestModel) async throws {
-        contest.$participants.value?.removeAll(where: { $0.id == user.id })
     }
     
     func update(_ model: ContestModel) async throws {

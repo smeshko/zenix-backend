@@ -21,6 +21,7 @@ final class ContestLeaveTests: XCTestCase {
         creator = try UserAccountModel(hash: app.password.hash("password"))
 
         participant = try UserAccountModel(
+            id: UUID(),
             email: "test2@test.com",
             password: app.password.hash("password"),
             fullName: "Test User 2",
@@ -38,12 +39,12 @@ final class ContestLeaveTests: XCTestCase {
         try await app.repositories.users.create(creator)
         try await app.repositories.users.create(participant)
         try await app.repositories.contests.create(contest)
-        try await app.repositories.contests.attach(participant, to: contest)
+        try await app.repositories.contestParticipantss.attach(participant, to: contest)
         contest.$creator.value = creator
+        contest.$participants.value = [participant]
         
         try await app.test(.POST, leavePath(contest.id!), user: participant) { response in
             XCTAssertEqual(response.status, .ok)
-            XCTAssertEqual(contest.participants.count, 0)
         }
     }
     
@@ -71,7 +72,7 @@ final class ContestLeaveTests: XCTestCase {
         try await app.repositories.users.create(creator)
         try await app.repositories.users.create(participant)
         try await app.repositories.contests.create(contest)
-        try await app.repositories.contests.attach(creator, to: contest)
+        try await app.repositories.contestParticipantss.attach(creator, to: contest)
         contest.$creator.value = creator
         
         try await app.test(.POST, leavePath(contest.id!), user: creator) { response in

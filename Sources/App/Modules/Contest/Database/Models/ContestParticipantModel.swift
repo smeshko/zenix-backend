@@ -1,7 +1,8 @@
 import Vapor
 import Fluent
 
-final class ContestParticipantModel: Model {
+final class ContestParticipantModel: DatabaseModelInterface {
+    typealias Module = ContestModule
     static let schema = "contest_participants"
 
     @ID(key: .id)
@@ -13,14 +14,15 @@ final class ContestParticipantModel: Model {
     @Parent(key: FieldKeys.v1.userId)
     var user: UserAccountModel
 
+    @OptionalParent(key: FieldKeys.v2.tradingAccountId)
+    var tradingAccount: TradingAccountModel?
+
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create)
     var createdAt: Date?
     
     @Enum(key: FieldKeys.v1.role)
     var role: Role
     
-    @OptionalField(key: FieldKeys.v2.accountNumber)
-    var accountNumber: String?
     
     @Field(key: FieldKeys.v2.rank)
     var rank: Int
@@ -31,6 +33,7 @@ final class ContestParticipantModel: Model {
         id: UUID? = nil,
         contest: ContestModel,
         user: UserAccountModel,
+        tradingAccount: TradingAccountModel? = nil,
         role: Role = .participant,
         accountNumber: String? = nil,
         rank: Int = 0
@@ -39,7 +42,7 @@ final class ContestParticipantModel: Model {
         self.$contest.id = try contest.requireID()
         self.$user.id = try user.requireID()
         self.role = role
-        self.accountNumber = accountNumber
+        self.$tradingAccount.id = tradingAccount?.id
         self.rank = rank
     }
 }
@@ -54,7 +57,7 @@ extension ContestParticipantModel {
         }
         
         struct v2 {
-            static var accountNumber: FieldKey { "account_number" }
+            static var tradingAccountId: FieldKey { "trading_account_id" }
             static var rank: FieldKey { "rank" }
         }
     }

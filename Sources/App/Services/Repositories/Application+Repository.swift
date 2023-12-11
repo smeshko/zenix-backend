@@ -10,6 +10,8 @@ public extension Application {
                     $0.repositories.use { DatabaseRefreshTokenRepository(database: $0.db) }
                     $0.repositories.use { DatabasePasswordTokenRepository(database: $0.db) }
                     $0.repositories.use { DatabaseContestRepository(database: $0.db) }
+                    $0.repositories.use { DatabaseTradingAccountRepository(database: $0.db) }
+                    $0.repositories.use { DatabaseContestParticipantsRepository(database: $0.db) }
                 }
             }
             
@@ -22,6 +24,8 @@ public extension Application {
             var makeRefreshTokenRepository: ((Application) -> any RefreshTokenRepository)?
             var makePasswordTokenRepository: ((Application) -> any PasswordTokenRepository)?
             var makeContestRepository: ((Application) -> any ContestRepository)?
+            var makeTradingAccountsRepository: ((Application) -> any TradingAccountRepository)?
+            var makeContestParticipantsRepository: ((Application) -> any ContestParticipantsRepository)?
             init() { }
         }
         
