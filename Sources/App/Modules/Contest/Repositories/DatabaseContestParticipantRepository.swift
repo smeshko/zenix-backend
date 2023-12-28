@@ -67,7 +67,7 @@ struct DatabaseContestParticipantsRepository: ContestParticipantsRepository, Dat
 extension Application.Repositories {
     var contestParticipantss: any ContestParticipantsRepository {
         guard let storage = storage.makeContestParticipantsRepository else {
-            fatalError("ContestParticipantsRepository not configured, use: app.userRepository.use()")
+            fatalError("ContestParticipantsRepository not configured, use: app.contestParticipantsRepository.use()")
         }
         
         return storage(app)

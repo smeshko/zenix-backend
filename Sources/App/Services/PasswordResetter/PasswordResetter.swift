@@ -1,3 +1,4 @@
+import Entities
 import Vapor
 import Queues
 
@@ -36,7 +37,7 @@ struct PasswordResetter {
         )
         
         if ![HTTPStatus.ok, .created].contains(response.status)  {
-            throw AuthenticationError.unknownError("Email verification failed")
+            throw AuthenticationError.passwordResetFailed
         }
     }
     

@@ -1,7 +1,7 @@
-import Foundation
 import Entities
+import Vapor
 
-extension TradingAccount.Create.Response {
+extension TradingAccount.Create.Response: Content {
     init(from model: TradingAccountModel) {
         self.init()
     }

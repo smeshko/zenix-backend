@@ -1,5 +1,6 @@
-import Vapor
+import Entities
 import Queues
+import Vapor
 
 struct EmailVerifier {
     let emailTokenRepository: any EmailTokenRepository
@@ -35,7 +36,7 @@ struct EmailVerifier {
         )
         
         if ![HTTPStatus.ok, .created].contains(response.status)  {
-            throw AuthenticationError.unknownError("Email verification failed")
+            throw AuthenticationError.emailVerificationFailed
         }
     }
     

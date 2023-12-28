@@ -5,7 +5,6 @@ protocol TradingAccountRepository: Repository {
     func create(_ model: TradingAccountModel) async throws
     func all(for user: UserAccountModel) async throws -> [TradingAccountModel]
     func find(id: UUID) async throws -> TradingAccountModel?
-
 }
 
 struct DatabaseTradingAccountRepository: TradingAccountRepository, DatabaseRepository {
@@ -40,7 +39,7 @@ struct DatabaseTradingAccountRepository: TradingAccountRepository, DatabaseRepos
 extension Application.Repositories {
     var tradingAccounts: any TradingAccountRepository {
         guard let storage = storage.makeTradingAccountsRepository else {
-            fatalError("TradingAccountRepository not configured, use: app.userRepository.use()")
+            fatalError("TradingAccountRepository not configured, use: app.tradingAccountRepository.use()")
         }
         
         return storage(app)

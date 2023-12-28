@@ -42,25 +42,14 @@ extension Application {
             try module.setUp(self)
         }
     }
-
+    
     func setupDB() throws {
-//        if environment == .testing {
-//            databases.use(.sqlite(.memory), as: .sqlite)
-//        } else {
-            try databases.use(.postgres(url: Environment.databaseURL), as: .psql)
-//        }
+        try databases.use(.postgres(url: Environment.databaseURL), as: .psql)
     }
-
+    
     func setupJWT() throws {
         if environment != .testing {
-            let jwksFilePath = directory.workingDirectory + (Environment.get("JWKS_KEYPAIR_FILE") ?? "keypair.jwks")
-             guard
-                 let jwks = FileManager.default.contents(atPath: jwksFilePath),
-                 let jwksString = String(data: jwks, encoding: .utf8)
-                 else {
-                     fatalError("Failed to load JWKS Keypair file at: \(jwksFilePath)")
-             }
-             try jwt.signers.use(jwksJSON: jwksString)
+            jwt.signers.use(.hs256(key: Environment.jwtKey))
         }
     }
     

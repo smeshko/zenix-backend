@@ -3,7 +3,7 @@ import Vapor
 struct ErrorResponse: Codable {
     var error: Bool
     var reason: String
-    var errorCode: String?
+    var errorIdentifier: String?
 }
 
 extension ErrorMiddleware {
@@ -12,34 +12,34 @@ extension ErrorMiddleware {
             let status: HTTPResponseStatus
             let reason: String
             let headers: HTTPHeaders
-            let errorCode: String?
+            let errorIdentifier: String?
             
             switch error {
             case let appError as AppError:
                 reason = appError.reason
                 status = appError.status
                 headers = appError.headers
-                errorCode = appError.identifier
+                errorIdentifier = appError.identifier
             case let abort as AbortError:
                 // this is an abort error, we should use its status, reason, and headers
                 reason = abort.reason
                 status = abort.status
                 headers = abort.headers
-                errorCode = nil
+                errorIdentifier = nil
             case let error as LocalizedError where !environment.isRelease:
                 // if not release mode, and error is debuggable, provide debug
                 // info directly to the developer
                 reason = error.localizedDescription
                 status = .internalServerError
                 headers = [:]
-                errorCode = nil
+                errorIdentifier = nil
             default:
                 // not an abort error, and not debuggable or in dev mode
                 // just deliver a generic 500 to avoid exposing any sensitive error info
                 reason = "Something went wrong."
                 status = .internalServerError
                 headers = [:]
-                errorCode = nil
+                errorIdentifier = nil
             }
             
             // Report the error to logger.
@@ -50,7 +50,11 @@ extension ErrorMiddleware {
             
             // attempt to serialize the error to json
             do {
-                let errorResponse = ErrorResponse(error: true, reason: reason, errorCode: errorCode)
+                let errorResponse = ErrorResponse(
+                    error: true,
+                    reason: reason,
+                    errorIdentifier: errorIdentifier
+                )
                 response.body = try .init(data: JSONEncoder().encode(errorResponse))
                 response.headers.replaceOrAdd(name: .contentType, value: "application/json; charset=utf-8")
             } catch {

@@ -20,4 +20,12 @@ extension Environment {
             fatalError("BASE_URL empty")
         }
     }
+    
+    static var jwtKey: String {
+        if let key = Environment.get("JWT_KEY") {
+            return key
+        } else {
+            fatalError("JWT_KEY is empty")
+        }
+    }
 }

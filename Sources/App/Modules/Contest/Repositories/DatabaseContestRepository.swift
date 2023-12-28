@@ -43,7 +43,7 @@ struct DatabaseContestRepository: ContestRepository, DatabaseRepository {
 extension Application.Repositories {
     var contests: any ContestRepository {
         guard let storage = storage.makeContestRepository else {
-            fatalError("UserRepository not configured, use: app.userRepository.use()")
+            fatalError("ContestRepository not configured, use: app.contestRepository.use()")
         }
         
         return storage(app)
